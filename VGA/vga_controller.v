@@ -1,4 +1,4 @@
-` include "global_parameters.v"
+`include "global_parameters.v"
 
 module vga_controller (display_area, red, green, blue, datarom, clock_25, game_enable, game_data);
 output [`PIXEL_DISPLAY_BIT:0] red, green, blue;

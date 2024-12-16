@@ -1,6 +1,6 @@
 `include "global_parameters.v"
 
-module graphic_game_for_test ( reset, clock_25, X, Y, snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, en_snake_body, snake_length, game_data, selected_figure);
+module graphic_game ( reset, clock_25, X, Y, snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, game_enable, en_snake_body, snake_length, game_data, selected_figure);
 
 input reset;                                                // Segnale di reset
 input clock_25;                                              // Clock a 25 MHz
@@ -12,6 +12,7 @@ input [6:0] fruit_x, fruit_y;                               // Coordinate del fr
 input [`SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
 input [49:0] selected_symbol;                                // Colore del pixel in ingresso (2 bit)
 
+output game_enable;
 output reg [1:0] game_data;                                 // Output: colore del pixel corrente
 output reg [1:0] selected_figure;                            // Output: tipo di figura (testa, corpo, coda, frutto)
 
@@ -179,8 +180,6 @@ always @(posedge clock_25 or negedge reset) begin
     else if (game_area) begin
 
         // Default: disabilita il gioco
-            
-            selected_figure <= selected_figure;
 
 
         // Controlla se X,Y appartengono a uno dei blocchi
@@ -214,8 +213,10 @@ always @(posedge clock_25 or negedge reset) begin
             selected_figure <= FRUIT;
         end
                         
-            else
+            else begin
                 addr_enable <= 1'b0;
+					 selected_figure <= selected_figure;
+				end
     end
       
 end

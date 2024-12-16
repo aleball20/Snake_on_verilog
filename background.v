@@ -1,6 +1,8 @@
+`include "global_parameters.v"
+
 module background (X,Y, clock_25, data,x_count, y_count, datarom);
-global_parameters param();
-input[param.PIXEL_DISPLAY_BIT:0] X, Y;
+
+input[`PIXEL_DISPLAY_BIT:0] X, Y;
 input data, clock_25;
 output [7:0] x_count;
 output [3:0] y_count;

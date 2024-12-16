@@ -1,10 +1,10 @@
-` include "global_parameters.v"
+`include "global_parameters.v"
 
 module vga_tracker (display_area, frame_tik, clock_25, h_sync, v_sync, reset, X, Y);
 input clock_25, reset;  //vga's clock(equal to the total number of pixels in the monitor * 60Hz =25,2MHz ), reset
 output h_sync, v_sync; //orizzontal & vertical syncronization
 output display_area, frame_tik;
-output [`PIXEL_DISPLAY_BIT:0] X;
+output [`PIXEL_DISPLAY_BIT:0] X,Y;
 reg [`PIXEL_DISPLAY_BIT:0] X;
 reg [`PIXEL_DISPLAY_BIT:0] Y;
 

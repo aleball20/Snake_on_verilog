@@ -17,7 +17,7 @@ begin
     else
         begin
             rnd<={rnd[5:0],rnd[6]^rnd[5]};   //it generates the next random value by calculating the bit with a XOR (rnd,[5]:0]: The 5 bits less significative are shifted to the right
-                                            // rnd[6] ^ rnd[5]:The new bit it's calculated with an XOR betwwen the bit 6 and 5 
+															// rnd[6] ^ rnd[5]:The new bit it's calculated with an XOR betwwen the bit 6 and 5 
         end    
 
 end

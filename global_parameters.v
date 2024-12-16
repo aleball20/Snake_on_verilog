@@ -12,7 +12,7 @@
 //definizione posizioni iniziali 
 `define BEGIN_SNAKE_HEAD_X 7'd8  // Posizione iniziale della testa del serpente (centrato sulla griglia)
 `define BEGIN_SNAKE_HEAD_Y 7'd40    // Posizione centrata nella griglia di 124x81
-`define BEGIN_SNAKE_LENGTH 14'd4       // Lunghezza iniziale del serpente (ad esempio, 4 segmenti)
+`define BEGIN_SNAKE_LENGTH 14'd6       // Lunghezza iniziale del serpente (ad esempio, 4 segmenti)
 `define BEGIN_FRUIT_X 7'd8        // Posizione iniziale del frutto (randomizzata o predefinita)
 `define BEGIN_FRUIT_Y 7'd42
 
