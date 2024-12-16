@@ -50,8 +50,8 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 
     //ricostruzione della matrice del bodysnake
 
-    reg [6:0] snake_body_x_reg [0:`SNAKE_LENGTH_MAX];        
-    reg [6:0] snake_body_y_reg [0:`SNAKE_LENGTH_MAX];  
+    reg [6:0] snake_body_x_reg [0:`SNAKE_LENGTH_MAX-1];        
+    reg [6:0] snake_body_y_reg [0:`SNAKE_LENGTH_MAX-1];  
     reg [`SNAKE_LENGTH_BIT-1:0] count=0;
 
     always @ (posedge clock_25) begin
@@ -165,10 +165,9 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
     end
    
 
-     // Indice del pixel (0-24) nel vettore
-
-    wire [5:0] pixel_index;
-	 assign pixel_index = y_local_delay * 10 + x_local_delay * 2 ;
+    wire [5:0] pixel_index;										 // Indice del pixel (0-24) nel vettore
+	 assign pixel_index = y_local * 10 + x_local * 2 ;
+	 reg addr_enable;
     reg [6:0] cont2;
     integer i=0;
 
@@ -179,7 +178,7 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 
             // Reset dei segnali
 
-           game_enable<=1'b0;
+           addr_enable<=1'b0;
            selected_figure <= 2'b00;
         end
         
@@ -194,7 +193,7 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 				
 				for (i =1 ;i< `SNAKE_LENGTH_MAX-2 ; i=i+1 ) begin      //controllo tutte le parti del corspo tranne testa e coda  
                     if ((i < snake_length) &&(x_block_delay == snake_body_x_reg[cont2]) && (y_block_delay == snake_body_y_reg[cont2])) begin
-									game_enable <= 1'b1;
+									addr_enable <= 1'b1;
                             cont2 <=cont2 +1'b1;
                             selected_figure <= BODY;
                     end
@@ -204,28 +203,35 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 
             if ((x_block_delay == snake_head_x) && (y_block_delay == snake_head_y)) begin 
                 
-                 game_enable <= 1'b1;      
+                 addr_enable <= 1'b1;      
                 selected_figure <= HEAD;
             end 
 
             else if ((x_block_delay == snake_body_x_reg[snake_length-1]) && (y_block_delay == snake_body_y_reg[snake_length-1])) begin  //controllo coda
 
-                game_enable <= 1'b1; 
+                addr_enable <= 1'b1; 
                 selected_figure <= TAIL;
 
             end
 
             else if ((x_block_delay == fruit_x) && (y_block_delay == fruit_y)) begin
 
-                game_enable <= 1'b1;
+                addr_enable <= 1'b1;
                 selected_figure <= FRUIT;
             end
             				
 				else
-					game_enable <= 1'b0;
+					addr_enable <= 1'b0;
         end
 		  
     end
+	 
+	 always @ (posedge clock_25 or negedge reset) begin
+		if (~reset)
+				game_enable <=1'b0;
+		else
+				game_enable <= addr_enable;
+	 end
 	 
 	 always @ (posedge clock_25 or negedge reset) begin
 	 
@@ -233,8 +239,8 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 				game_data <=2'b00;
 
 	   else if (game_enable == 1'b1)
-					//game_data <= {selected_symbol[49-pixel_index],selected_symbol[48-pixel_index]};
-					game_data <= 2'b11;
+					game_data <= {selected_symbol[49-pixel_index],selected_symbol[48-pixel_index]};
+					//game_data <= 2'b11;
 		else
 					game_data <=2'b00;
 end
