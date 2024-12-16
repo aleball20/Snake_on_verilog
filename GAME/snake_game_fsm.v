@@ -405,13 +405,20 @@ always @ (posedge clock_25) begin
  
      end
 
-     else begin 
+     else if (snake_head_x == snake_body_x[0] && snake_head_y < snake_body_y[0]) begin 
 
         right <= left_P;  
         left <= right_P;
         up <= 1'b0; 
         down <= 1'b0;
      end
+	  
+	  else begin
+			right <= 1'b0;  
+			left <= 1'b0;
+			up <= 1'b0; 
+			down <= 1'b0;
+	 end 
  end     
 endmodule
 

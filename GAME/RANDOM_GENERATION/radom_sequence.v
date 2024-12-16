@@ -21,7 +21,7 @@ module random_sequence (
 
 	assign rnd_bit = rnd_seq[0];
 
-	always @(posedge clock_25)
+	always @(posedge clock_25 or negedge reset)
 	begin
 		if (~reset)
 			rnd <= 40;

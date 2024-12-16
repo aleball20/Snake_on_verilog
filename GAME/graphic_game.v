@@ -163,7 +163,6 @@ wire [5:0] pixel_index;										 // Indice del pixel (0-24) nel vettore
 assign pixel_index = y_local * 10 + x_local * 2 ;
 reg game_enable;                                            // Output: attiva il pixel
 reg addr_enable;
-reg [6:0] cont2;
 integer i=0;
 
 
@@ -184,14 +183,15 @@ always @(posedge clock_25 or negedge reset) begin
 
         // Controlla se X,Y appartengono a uno dei blocchi
             
-            for (i =1 ;i< `SNAKE_LENGTH_MAX-2 ; i=i+1 ) begin      //controllo tutte le parti del corspo tranne testa e coda  
-                if ((i < snake_length) &&(x_block_delay == snake_body_x_reg[cont2]) && (y_block_delay == snake_body_y_reg[cont2])) begin
-                                addr_enable <= 1'b1;
-                        cont2 <=cont2 +1'b1;
+            for (i =0 ;i< `SNAKE_LENGTH_MAX-2 ; i=i+1 ) begin      //controllo tutte le parti del corspo tranne testa e coda  
+                if ((i < snake_length-1) &&(x_block_delay == snake_body_x_reg[i]) && (y_block_delay == snake_body_y_reg[i])) begin
+                        addr_enable <= 1'b1;
                         selected_figure <= BODY;
                 end
-                      else
-                            cont2 <= 7'b0000000;
+                else	begin
+								addr_enable <= 1'b0;
+								selected_figure <= 2'b00;  
+					end
             end
 
         if ((x_block_delay == snake_head_x) && (y_block_delay == snake_head_y)) begin 
@@ -213,10 +213,6 @@ always @(posedge clock_25 or negedge reset) begin
             selected_figure <= FRUIT;
         end
                         
-            else begin
-                addr_enable <= 1'b0;
-					 selected_figure <= selected_figure;
-				end
     end
       
 end

@@ -41,7 +41,7 @@ divisore_frequenza my_frequency_25MHz(
 );
 
 
-divisore_frequenza my_frequency_30MHz(
+divisore_frequenza my_frequency_30Hz(
 .clk_in(frame_tik),
 .reset(reset),
 .clock_out(game_tik)
