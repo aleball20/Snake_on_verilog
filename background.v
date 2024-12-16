@@ -1,11 +1,10 @@
-module background (X,Y, clock_25, data,x_count, y_count, datarom, game_area);
+module background (X,Y, clock_25, data,x_count, y_count, datarom);
 global_parameters param();
 input[param.PIXEL_DISPLAY_BIT:0] X, Y;
 input data, clock_25;
 output [7:0] x_count;
 output [3:0] y_count;
 output datarom; //values from ROM
-output game_area //playing game's area
 //defining squares of the game
 wire rectangle_1;
 wire rectangle_2;
@@ -25,8 +24,6 @@ assign rectangle_4 = (X >= 53 && X <= 683 && Y> 448 && Y <= 453);    //on bottom
 assign rectangle_3 = (X > 678 && X <= 683 && Y>= 38 && Y < 448);     //on the right
 
 assign game_rectangle = (rectangle_1 || rectangle_2 || rectangle_3 || rectangle_4) ? 1'b1 :1'b0;
-
-assign game_area = (X>=58 && X<=678  && Y >=  43 && Y <=  448) ? 1'b1 : 1'b0;  //per algoritm grafic_game
 
 always @ (posedge clock_25) begin
     if(Y< 460 || Y> 475) begin 

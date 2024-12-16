@@ -22,7 +22,10 @@ wire game_tik, frame_tik;
 wire reset;
 wire game_enable; 
 wire display_area;
-wire  datarom;
+wire datarom;
+wire data;
+wire [3:0] y_count;
+wire [7:0]x_count;
 
 
 assign VGA_BLANK=1'b1;
@@ -43,7 +46,7 @@ divisore_frequenza my_frequency_30MHz #(1)(
 );
 
 
-grafic_game my_grafic_game (
+graphic_game my_graphic_game (
     
     .clock_25(clock_25),
     .reset(reset),
@@ -58,7 +61,6 @@ grafic_game my_grafic_game (
     .selected_symbol(selected_symbol),
     .en_snake_body(en_snake_body),
     .snake_length(snake_length),
-    .game_area(game_area),
     .game_enable(game_enable),
     .game_data(game_data),
     .selected_figure(selected_figure)
@@ -105,5 +107,27 @@ vga_tracker my_vga_tracker(
     .X(X),
     .Y(Y)
 );
+
+background my_background(
+    .X(X),
+    .Y(Y), 
+    .clock_25(clock_25),
+    .data (data),
+    .x_count(x_count),
+    .y_count(y_count),
+    .datarom(datarom),
+);
+
+
+rom_background my_rombackground(
+    .x_count(X_count),
+    .y_count(y_count),
+    .data(data),
+    .clock_25(clock_25)
+    );
+
+
+
+
 
 endmodule
