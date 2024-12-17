@@ -1,10 +1,12 @@
-`include "global_parameters.v"
 
 module vga_controller (display_area, red, green, blue, datarom, clock_25, game_enable, game_data);
-output [`PIXEL_DISPLAY_BIT:0] red, green, blue;
+
+parameter PIXEL_DISPLAY_BIT   = 9;
+
+output [PIXEL_DISPLAY_BIT:0] red, green, blue;
 input datarom, clock_25, game_enable, display_area;
 input [1:0] game_data;
-reg [`PIXEL_DISPLAY_BIT:0] red, green, blue;
+reg [PIXEL_DISPLAY_BIT:0] red, green, blue;
 
 //if the gma:enable signal which come from the gameblock is true the vga will print the data from gameblock, in default it prints from the sram
 //if the display area isn't enabled, everything black; if not, as the main priority it will do the gamedata or instead it would read the fixed datarom

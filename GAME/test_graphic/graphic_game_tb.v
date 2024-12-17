@@ -1,10 +1,11 @@
 `timescale 1ns/100ps
-`include "global_parameters.v"
 
 module graphic_game_tb;
 
+parameter PIXEL_DISPLAY_BIT =9;
+
 reg  clock_25_tb, reset_tb;
-reg [`PIXEL_DISPLAY_BIT:0] X_tb, Y_tb; 
+reg [PIXEL_DISPLAY_BIT:0] X_tb, Y_tb; 
 reg [6:0] snake_head_x_tb, snake_head_y_tb, snake_body_x_tb, snake_body_y_tb, fruit_x_tb, fruit_y_tb;
 reg [3:0] snake_length_tb;
 reg en_snake_body_tb;

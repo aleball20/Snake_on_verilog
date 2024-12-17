@@ -1,15 +1,16 @@
 /* Modulo di gioco. Qui si gestisce il comportamento dello snake e lo stato di gioco.
 Si definisce una griglia di gioco nel quale verrano collocati i blocchi del serpente e il frutto.
-Ogni singola cella della griglia ÃƒÂ¨ grande 5x5 pixels. Essendo la game_area grande 620x405 pixels vi sarÃƒÂ 
-la griglia di gioco avrÃƒÂ  dimensinone 124x81 celle */
+Ogni singola cella della griglia ÃƒÆ’Ã‚Â¨ grande 5x5 pixels. Essendo la game_area grande 620x405 pixels vi sarÃƒÆ’Ã‚Â 
+la griglia di gioco avrÃƒÆ’Ã‚Â  dimensinone 124x81 celle */
 
 
 
-module snake_game_fsm(clock_25, game_tik, display_area, reset, right_P, left_P, score, en_snake_body,
+module snake_game_fsm_for_test(current_state, next_state, clock_25, game_tik, display_area, reset, right_P, left_P, score, en_snake_body,
 					snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, snake_length); 
 
 parameter SNAKE_LENGTH_BIT = 4;
 parameter SNAKE_LENGTH_MAX = 16; 
+
 parameter  IDLE = 3'b000;
 parameter  WAIT = 3'b001;
 parameter  EATEN_FRUIT = 3'b010;
@@ -18,6 +19,7 @@ parameter  MOVING = 3'b100;
 parameter  MOVE_DONE = 3'b101;
 parameter FRUIT_UPDATE = 3'b110;
 parameter  FRUIT_DONE = 3'b111;
+
 parameter BEGIN_SNAKE_HEAD_X = 7'd8;  // Posizione iniziale della testa del serpente (centrato sulla griglia)
 parameter BEGIN_SNAKE_HEAD_Y = 7'd40;    // Posizione centrata nella griglia di 124x81
 parameter BEGIN_SNAKE_LENGTH = 14'd6;       // Lunghezza iniziale del serpente (ad esempio, 4 segmenti)
@@ -38,8 +40,8 @@ parameter VERTICAL_CELLS_NUM = 81;
     output [SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
     output reg [7:0] score;                                           // Punteggio corrente del gioco
 
-reg [2:0] current_state; 
-reg [2:0] next_state;
+output reg [2:0] current_state; 
+output reg [2:0] next_state;
 
 
 // registri di posizione e wire
@@ -79,7 +81,7 @@ always @(posedge clock_25 or negedge reset)
         
     
     else 
-        current_state <= next_state;  // Se non ÃƒÂ¨ attivo il reset, aggiorna lo stato corrente con quello successivo
+        current_state <= next_state;  // Se non ÃƒÆ’Ã‚Â¨ attivo il reset, aggiorna lo stato corrente con quello successivo
 
 
 
@@ -201,7 +203,7 @@ always @(current_state)
         
         COLLISION: begin
             // Imposta il segnale di fine gioco (game over)
-            // Il gioco è finito
+            // Il gioco Ã¨ finito
             en_move = 1'b0;
             sync_reset= 1'b0;
             en_fruit = 1'b0; 
@@ -362,19 +364,19 @@ integer j=0;
 
  always @ (snake_head_x or snake_head_y or snake_length) begin
 
-     // Verifica se la testa del serpente Ã¨ fuori dai bordi
-     if (snake_head_x < 0 || snake_head_x > `HORIZONTAL_CELLS_NUM-1'b1 || snake_head_y < 0 || snake_head_y > `VERTICAL_CELLS_NUM-1'b1) begin
-        // Se la testa è¨ fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
+     // Verifica se la testa del serpente ÃƒÂ¨ fuori dai bordi
+     if (snake_head_x < 0 || snake_head_x > HORIZONTAL_CELLS_NUM-1'b1 || snake_head_y < 0 || snake_head_y > VERTICAL_CELLS_NUM-1'b1) begin
+        // Se la testa Ã¨Â¨ fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
         collision_detected = 1;
 		  j=0;
 			end
-    // Verifica se la testa del serpente ha colpito se stessa (ossia una posizione giÃ  occupata dal corpo)
+    // Verifica se la testa del serpente ha colpito se stessa (ossia una posizione giÃƒÂ  occupata dal corpo)
     else begin
         collision_detected = 0; // Inizialmente, nessuna collisione
         for (j = 0; j < snake_length; j = j + 1'b1) begin
-             // Controlla se la testa del serpente è sulla stessa posizione di uno dei segmenti del corpo
+             // Controlla se la testa del serpente Ã¨ sulla stessa posizione di uno dei segmenti del corpo
             if (snake_head_x == snake_body_x_reg[j] && snake_head_y == snake_body_y_reg[j])
-                collision_detected = 1'b1; // Se la testa del serpente Ã¨ sul corpo, collisione
+                collision_detected = 1'b1; // Se la testa del serpente ÃƒÂ¨ sul corpo, collisione
         end
     end
  end

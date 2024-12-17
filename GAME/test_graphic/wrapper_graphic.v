@@ -1,10 +1,11 @@
-`include "global_parameters.v"
 
 module wrapper_graphic(x_block, y_block, x_local, y_local, clock_25, reset, X, Y, snake_head_x, snake_head_y, snake_body_x, snake_body_y,
 fruit_x, fruit_y, snake_length, en_snake_body, selected_figure, game_enable, game_area, game_data);
 
+paremeter PIXEL_DISPLAY_BIT = 9;
+
 input  clock_25, reset;
-input [`PIXEL_DISPLAY_BIT:0] X, Y; 
+input [PIXEL_DISPLAY_BIT:0] X, Y; 
 input [6:0] snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y;
 input [3:0] snake_length;
 input en_snake_body;

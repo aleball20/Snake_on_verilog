@@ -1,11 +1,12 @@
-`include "global_parameters.v"
-
-
 module game_wrapper (CLOCK_50, KEY0, KEY2, KEY3, VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK, VGA_R, VGA_G, VGA_B);
+
+parameter PIXEL_DISPLAY_BIT = 9;
+parameter SNAKE_LENGTH_BIT = 4;
+
 
 input CLOCK_50, KEY0, KEY2, KEY3;
 output VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK;
-output [`PIXEL_DISPLAY_BIT:0]  VGA_R, VGA_G, VGA_B;
+output [PIXEL_DISPLAY_BIT:0]  VGA_R, VGA_G, VGA_B;
 
 wire [6:0] snake_head_x, snake_head_y;
 wire [6:0] snake_body_x;
@@ -14,8 +15,8 @@ wire [49:0] selected_symbol;
 wire [1:0] game_data;                                 
 wire [1:0] selected_figure; 
 wire [7:0] score; 
-wire [`PIXEL_DISPLAY_BIT:0] X, Y;
-wire [`SNAKE_LENGTH_BIT-1:0] snake_length;
+wire [PIXEL_DISPLAY_BIT:0] X, Y;
+wire [SNAKE_LENGTH_BIT-1:0] snake_length;
 wire en_snake_body; 
 wire game_tik, frame_tik;                                 
 wire reset;
@@ -40,11 +41,11 @@ divisore_frequenza my_frequency_25MHz(
 .clock_out(clock_25)
 );
 
-
-divisore_frequenza my_frequency_30Hz(
-.clk_in(frame_tik),
-.reset(reset),
-.clock_out(game_tik)
+game_delay my_game_delay(
+    .clock_25(clock_25),
+    .reset(reset),
+    .frame_tik(frame_tik),
+    .game_tik(game_tik)
 );
 
 
@@ -107,7 +108,7 @@ vga_controller my_vga_controller(
 
 vga_tracker my_vga_tracker(
     .display_area(display_area),
-	 .frame_tik(frame_tik),
+	.frame_tik(frame_tik),
     .clock_25(clock_25),
     .h_sync(VGA_HS),
     .v_sync(VGA_VS),
