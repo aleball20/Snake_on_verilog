@@ -4,6 +4,8 @@ Ogni singola cella della griglia ÃƒÂ¨ grande 5x5 pixels. Essendo la game_are
 la griglia di gioco avrÃƒÂ  dimensinone 124x81 celle */
 
 
+//UNA VOLTA FINITI I TEST DA SOSTITUIRE QUESTO CODICE CON SNAKE_GAME_FSM
+
 
 module snake_game_fsm(clock_25, game_tik, display_area, reset, right_P, left_P, score, en_snake_body,
 					snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, snake_length); 

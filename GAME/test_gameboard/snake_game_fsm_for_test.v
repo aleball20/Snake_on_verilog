@@ -11,6 +11,8 @@ module snake_game_fsm_for_test(current_state, next_state, clock_25, game_tik, di
 parameter SNAKE_LENGTH_BIT = 4;
 parameter SNAKE_LENGTH_MAX = 16; 
 
+//fsm states:
+
 parameter  IDLE = 3'b000;
 parameter  WAIT = 3'b001;
 parameter  EATEN_FRUIT = 3'b010;
@@ -20,11 +22,14 @@ parameter  MOVE_DONE = 3'b101;
 parameter FRUIT_UPDATE = 3'b110;
 parameter  FRUIT_DONE = 3'b111;
 
+//initial values:
+
 parameter BEGIN_SNAKE_HEAD_X = 7'd8;  // Posizione iniziale della testa del serpente (centrato sulla griglia)
 parameter BEGIN_SNAKE_HEAD_Y = 7'd40;    // Posizione centrata nella griglia di 124x81
 parameter BEGIN_SNAKE_LENGTH = 14'd6;       // Lunghezza iniziale del serpente (ad esempio, 4 segmenti)
 parameter BEGIN_FRUIT_X = 7'd8;       // Posizione iniziale del frutto (randomizzata o predefinita)
 parameter BEGIN_FRUIT_Y = 7'd42;
+
 parameter HORIZONTAL_CELLS_NUM = 124; //da aggiungere in futuro
 parameter VERTICAL_CELLS_NUM = 81;
 
@@ -341,7 +346,7 @@ PRBS random_sequence_x(
 
 PRBS random_sequence_y(
     .clock_25(clock_25),
-	 .reset(reset),
+	.reset(reset),
     .seed(7'b0110000),
     .rnd(new_position_y)
 );

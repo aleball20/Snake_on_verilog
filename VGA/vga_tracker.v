@@ -53,4 +53,5 @@ assign display_area = (X >= H_BACK_PORCH) && (X < H_DISPLAY + H_BACK_PORCH) && (
 assign h_sync = ~(X >= (H_BACK_PORCH + H_DISPLAY + H_FRONT_PORCH) && X< ( H_BACK_PORCH + H_DISPLAY + H_FRONT_PORCH + H_SYNC_PULSE));
 assign v_sync = ~(Y>= (V_BACK_PORCH + V_DISPLAY + V_FRONT_PORCH) && Y < (V_BACK_PORCH + V_DISPLAY + V_FRONT_PORCH + V_SYNC_PULSE));
 assign frame_tik = ~v_sync;
+
 endmodule

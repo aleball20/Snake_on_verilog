@@ -1,12 +1,12 @@
 module game_wrapper (CLOCK_50, KEY0, KEY2, KEY3, VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK, VGA_R, VGA_G, VGA_B);
 
-parameter PIXEL_DISPLAY_BIT = 9;
+parameter PIXEL_DISPLAY_BIT = 10;
 parameter SNAKE_LENGTH_BIT = 4;
 
 
 input CLOCK_50, KEY0, KEY2, KEY3;
 output VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK;
-output [PIXEL_DISPLAY_BIT:0]  VGA_R, VGA_G, VGA_B;
+output [PIXEL_DISPLAY_BIT-1'b1:0]  VGA_R, VGA_G, VGA_B;
 
 wire [6:0] snake_head_x, snake_head_y;
 wire [6:0] snake_body_x;
@@ -15,7 +15,7 @@ wire [49:0] selected_symbol;
 wire [1:0] game_data;                                 
 wire [1:0] selected_figure; 
 wire [7:0] score; 
-wire [PIXEL_DISPLAY_BIT:0] X, Y;
+wire [PIXEL_DISPLAY_BIT-1'b1:0] X, Y;
 wire [SNAKE_LENGTH_BIT-1:0] snake_length;
 wire en_snake_body; 
 wire game_tik, frame_tik;                                 
@@ -61,7 +61,7 @@ graphic_game my_graphic_game(
     .snake_body_y(snake_body_y),
     .fruit_x(fruit_x),
     .fruit_y(fruit_y),
-	 .game_enable(game_enable),
+	.game_enable(game_enable),
     .selected_symbol(selected_symbol),
     .en_snake_body(en_snake_body),
     .snake_length(snake_length),
@@ -121,7 +121,7 @@ background my_background(
     .X(X),
     .Y(Y), 
     .clock_25(clock_25),
-    .data (data),
+    .data(data),
     .x_count(x_count),
     .y_count(y_count),
     .datarom(datarom)

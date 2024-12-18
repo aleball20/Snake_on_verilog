@@ -40,14 +40,13 @@ snake_game_fsm_for_test my_snake_game_fsm_for_test(
 vga_tracker my_vga_tracker(
     .display_area(display_area),
     .clock_25(clock_25),
-	 .frame_tik(frame_tik),
+	.frame_tik(frame_tik),
     .h_sync(VGA_HS),
     .v_sync(VGA_VS),
     .reset(reset),
     .X(X),
     .Y(Y)
 );
-
 
 
 game_delay my_game_delay(
