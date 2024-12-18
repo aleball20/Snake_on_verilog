@@ -1,10 +1,10 @@
 
-module vga_controller (display_area, red, green, blue, datarom, clock_25, game_enable, game_data);
+module vga_controller (display_area, reset, red, green, blue, datarom, clock_25, game_enable, game_data);
 
 parameter PIXEL_DISPLAY_BIT   = 10;
 
 output [PIXEL_DISPLAY_BIT-1'b1:0] red, green, blue;
-input datarom, clock_25, game_enable, display_area;
+input reset, datarom, clock_25, game_enable, display_area;
 input [1:0] game_data;
 reg [PIXEL_DISPLAY_BIT-1'b1:0] red, green, blue;
 

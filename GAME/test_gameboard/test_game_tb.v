@@ -14,6 +14,7 @@ wire [3:0] snake_length_tb;
 wire[7:0] score_tb;
 wire VGA_HS_tb, VGA_VS_tb;
 wire frame_tik_tb, game_tik_tb;
+wire right_tb, left_tb, up_tb, down_tb;
 wire display_area_tb;
 wire [PIXEL_DISPLAY_BIT:0] X_tb,Y_tb; 
 wire [2:0] next_state_tb, current_state_tb;
@@ -39,6 +40,10 @@ wrapper_snake_game my_wrapper_snake_game(
 .VGA_VS(VGA_VS_tb),
 .next_state(next_state_tb),
 .current_state(current_state_tb),
+.right(right_tb),
+.left(left_tb),
+.up(up_tb),
+.down(down_tb),
 .X(X_tb),
 .Y(Y_tb)
 );
@@ -53,12 +58,20 @@ end
 
 initial begin
     reset_tb=0;
+	 left_P_tb=0;
+	 right_P_tb=0;
     #50;  //test the IDLE state
 	 reset_tb=1;
      left_P_tb=0;
      right_P_tb=0; 
      #100000000;
      right_P_tb =1;
+	  #50
+	  right_P_tb =0;
+	  #50
+	   right_P_tb =1;
+	  #50
+	  right_P_tb =0;
      #100000000;	 
 
 end

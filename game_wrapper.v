@@ -55,6 +55,7 @@ graphic_game my_graphic_game(
     .reset(reset),
     .X(X),
     .Y(Y),
+    .frame_tik(frame_tik),
     .snake_head_x(snake_head_x),
     .snake_head_y(snake_head_y),
     .snake_body_x(snake_body_x),
@@ -79,7 +80,7 @@ symbol my_symbol (
 snake_game_fsm my_snake_game_fsm (
     .clock_25(clock_25),
     .game_tik(game_tik),
-    .display_area(display_area),
+	 .frame_tik(frame_tik),
     .reset(reset),
     .right_P(~KEY2),
     .left_P(~KEY3),
@@ -96,6 +97,7 @@ snake_game_fsm my_snake_game_fsm (
 
 vga_controller my_vga_controller(
 .display_area(display_area),
+.reset(KEY0),
 .red(VGA_R),
 .green(VGA_G),
 .blue(VGA_B),

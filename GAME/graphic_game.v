@@ -1,5 +1,5 @@
 
-module graphic_game ( reset, clock_25, X, Y, snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, game_enable, en_snake_body, snake_length, game_data, selected_figure);
+module graphic_game ( reset, frame_tik, clock_25, X, Y, snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, game_enable, en_snake_body, snake_length, game_data, selected_figure);
 
 parameter PIXEL_DISPLAY_BIT = 9;
 parameter SNAKE_LENGTH_BIT = 4;
@@ -23,12 +23,13 @@ parameter BLOCK_SIZE = 5;
 input reset;                                                // Segnale di reset
 input clock_25;                                              // Clock a 25 MHz
 input en_snake_body;                                         //abilitazione all'invio dei blocchi del corpo
+input frame_tik;                                             // negato del v_sync
 input [PIXEL_DISPLAY_BIT:0] X, Y;                           // Coordinate globali (contatori dello schermo)
 input [6:0] snake_head_x, snake_head_y;                                  // Coordinate della testa del serpente
 input [6:0] snake_body_x, snake_body_y;                                  // Coordinate del corpo del serpente
 input [6:0] fruit_x, fruit_y;                               // Coordinate del frutto
 input [SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
-input [49:0] selected_symbol;                                // Colore del pixel in ingresso (2 bit)
+input [49:0] selected_symbol;                               // Colore del pixel in ingresso (2 bit)
 
 output game_enable;
 output reg [1:0] game_data;                                 // Output: colore del pixel corrente
@@ -51,11 +52,16 @@ reg [`SNAKE_LENGTH_BIT-1:0] count=0;
 always @ (posedge clock_25) begin
     if (en_snake_body==1'b0)
         count<=0;
-    else begin
-        snake_body_x_reg[count] <= snake_body_x;
-        snake_body_y_reg[count] <= snake_body_y;
+		  
+    else if (~frame_tik)
+        count <= count;
+	else if (count == SNAKE_LENGTH_MAX-2)
+			count <= count;
+    else
         count <= count + 1'b1;
-    end
+	snake_body_x_reg[count] <= snake_body_x;
+    snake_body_y_reg[count] <= snake_body_y;
+ 
 end    
 
 
