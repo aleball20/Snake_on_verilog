@@ -5,7 +5,7 @@ la griglia di gioco avrÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ
 
 
 
-module snake_game_fsm_for_test(right, left, up, down, current_state, next_state, clock_25, frame_tik, game_tik, reset, right_P, left_P, score, en_snake_body,
+module snake_game_fsm( clock_25, frame_tik, game_tik, reset, right_P, left_P, score, en_snake_body,
 					snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, snake_length); 
 
 parameter SNAKE_LENGTH_BIT = 4;
@@ -45,10 +45,9 @@ parameter BEGIN_FRUIT_Y = 7'd42;
     output [SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
     output reg [7:0] score;                                           // Punteggio corrente del gioco
 
-//DA RIMUOVERE QUESTI OUTPUT LASCIANDO SOLO IL REG, farlo anche sopra nel module
-output right, left, up, down;
-output reg [2:0] current_state; 
-output reg [2:0] next_state;
+
+reg [2:0] current_state; 
+reg [2:0] next_state;
 
 
 // registri di posizione e wire
@@ -59,6 +58,8 @@ reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-1];
 reg [SNAKE_LENGTH_BIT-1:0] snake_length;               
 reg [6:0] fruit_x, fruit_y;
 reg up, down, left, right;
+reg right_sync, left_sync;
+reg right_register, left_register;
 
 wire [6:0] new_position_x, new_position_y;
 wire fruit_eaten;
@@ -425,6 +426,7 @@ always @ (posedge clock_25 or negedge reset ) begin
     end
     
 end
+
 //Definisco right_register e left_register che assumeranno il valore degli input right_sync e left_sync
 // fino al completamento della mossa successiva, ovvero fino all'ingresso nello stato move_done.
 always @ (posedge clock_25 or negedge reset) begin 

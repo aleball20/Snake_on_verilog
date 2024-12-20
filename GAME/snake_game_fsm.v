@@ -5,7 +5,7 @@ la griglia di gioco avrÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ
 
 
 
-module snake_game_fsm(clock_25, frame_tik, game_tik, reset, right_P, left_P, score, en_snake_body,
+module snake_game_fsm( clock_25, frame_tik, game_tik, reset, right_P, left_P, score, en_snake_body,
 					snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, snake_length); 
 
 parameter SNAKE_LENGTH_BIT = 4;
@@ -21,7 +21,7 @@ parameter  EATEN_FRUIT = 3'b010;
 parameter  COLLISION = 3'b011;
 parameter  MOVING = 3'b100;
 parameter  MOVE_DONE = 3'b101;
-parameter  FRUIT_UPDATE = 3'b110;
+parameter FRUIT_UPDATE = 3'b110;
 
 
 //initial values:
@@ -46,8 +46,8 @@ parameter BEGIN_FRUIT_Y = 7'd42;
     output reg [7:0] score;                                           // Punteggio corrente del gioco
 
 
- reg [2:0] current_state; 
- reg [2:0] next_state;
+reg [2:0] current_state; 
+reg [2:0] next_state;
 
 
 // registri di posizione e wire
@@ -58,6 +58,9 @@ reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-1];
 reg [SNAKE_LENGTH_BIT-1:0] snake_length;               
 reg [6:0] fruit_x, fruit_y;
 reg up, down, left, right;
+reg right_sync, left_sync;
+reg right_register, left_register;
+reg [1:0]right_shifter, left_shifter;
 
 wire [6:0] new_position_x, new_position_y;
 wire fruit_eaten;
@@ -93,13 +96,13 @@ always @(posedge clock_25 or negedge reset)
 
 // Logica per aggiornare gli stai del gioco della FSM
 
-always @(current_state, left_P, right_P, game_tik, collision_detected, fruit_eaten, collision_fruit)
+always @(current_state, left_sync, right_sync, game_tik, collision_detected, fruit_eaten, collision_fruit)
  
     case (current_state)
 
         IDLE: begin
         
-            if (right_P || left_P)  // Se il giocatore fornisce un input (movimento), passa allo stato WAIT
+            if (right_sync || left_sync)  // Se il giocatore fornisce un input (movimento), passa allo stato WAIT
                 next_state = WAIT;
             else 
                 next_state = IDLE;
@@ -148,7 +151,7 @@ always @(current_state, left_P, right_P, game_tik, collision_detected, fruit_eat
         
         COLLISION: begin
             // In caso di collisione, il gioco termina e rimane nello stato COLLISION
-            if (right_P || left_P) 
+            if (right_sync || left_sync) 
                 next_state = IDLE;
             else 
                 next_state = COLLISION;
@@ -220,7 +223,7 @@ always @(current_state)
         end
 			
 		default begin
-				en_move = 1'b0;
+			en_move = 1'b0;
             sync_reset =1'b1;
             en_fruit = 1'b0;
             en_snake_body = 1'b1;
@@ -238,8 +241,6 @@ always @(current_state)
             count<=0;
         else if (~frame_tik) 
             count <= count;
-			else if (count == SNAKE_LENGTH_MAX-2)
-				count <= count;
         else 
             count <= count + 1'b1;
             snake_body_x <= snake_body_x_reg[count] ;
@@ -274,14 +275,14 @@ always @ (posedge clock_25) begin //il reset non ÃƒÆ’Ã†â€™Ãƒâ€
 
     else if(en_move) begin
         // Aggiorna la posizione della testa del serpente in base agli input
-        if (up) begin
-            if (snake_head_y > 0) begin
-                 snake_head_y <= snake_head_y - 1'b1;    // Muove il serpente verso l'alto
-                 snake_head_x <= snake_head_x;
-            end
+            if (up) begin
+                if (snake_head_y > 0) begin
+                    snake_head_y <= snake_head_y - 1'b1;    // Muove il serpente verso l'alto
+                    snake_head_x <= snake_head_x;
+                end
         end 
             
-          else if (down) begin
+            else if (down) begin
                 if (snake_head_y < VERTICAL_CELLS_NUM-1'b1) begin
                     snake_head_y <= snake_head_y + 1'b1;    // Muove il serpente verso il basso
                     snake_head_x <= snake_head_x;
@@ -395,53 +396,121 @@ integer j=0;
     end
  end
  
+ //rivlevatore di fronti del pulsante
 
-//convertire i movimenti 
+ always @ (posedge clock_25 or negedge reset ) begin
 
-//DA RISCRIVEREEEEEEE
-always @ (posedge clock_25) begin 
-
-    if (snake_head_y == snake_body_y[0] && snake_head_x > snake_body_x[0]) begin
-
-       down <= right_P;  
-       up <= left_P;
-       right <= 1'b0;
-       left <= 1'b0;
-
+    if (~reset) begin
+       right_shifter <= 2'b00;
     end
-
-    else if (snake_head_y == snake_body_y[0] && snake_head_x < snake_body_x[0]) begin 
-       down <= left_P;  
-       up <= right_P;
-       right <= 1'b0;
-       left <= 1'b0;
-       
-
+    else begin
+        right_shifter <= { right_shifter[0], right_P};
+        if (right_shifter[0]==1'b1 && right_shifter[1]==1'b0) 
+            right_sync=1'b1;
+        else
+            right_sync=1'b0;       
     end
+    
+end
 
-    else if (snake_head_x == snake_body_x[0] && snake_head_y > snake_body_y[0]) begin 
+always @ (posedge clock_25 or negedge reset ) begin
 
-        right <= right_P;  
-        left <= left_P;
+    if (~reset) begin
+       left_shifter <= 2'b00;
+    end
+    else begin
+        left_shifter <= { left_shifter[0], left_P};
+        if (left_shifter[0]==1'b1 && left_shifter[1]==1'b0) 
+            left_sync=1'b1;
+        else
+            left_sync=1'b0;       
+    end
+    
+end
+
+//Definisco right_register e left_register che assumeranno il valore degli input right_sync e left_sync
+// fino al completamento della mossa successiva, ovvero fino all'ingresso nello stato move_done.
+always @ (posedge clock_25 or negedge reset) begin 
+
+    if (~reset) begin
+        right_register <= 1'b0;
+        left_register <= 1'b0;
+    end
+    else if(right_sync==1'b1 || left_sync==1'b1) begin   //se l'utente preme il pulsante i registri vengono aggiornati
+        if(right_sync==1'b1 && left_sync==1'b1 ) begin   //controllo se utente preme entrambi pulsanti, il serpente non cambia
+            right_register <= 1'b0;
+            left_register <= 1'b0;
+        end 
+        else begin
+            right_register <= right_sync;
+            left_register <= left_sync;
+        end
+    end
+   else if(en_move==1'b1) begin        //al termine della mossa i registri tornano ad 0
+      right_register <= 1'b0;
+		left_register <= 1'b0;
+    end
+    else begin
+        right_register <= right_register;
+        left_register <= left_register;
+    end 
+end
+
+
+//converte l'input nelle direzioni effettive dello snake 
+always @ (posedge clock_25 or negedge reset) begin 
+
+    if (~reset) begin
+        down <= 1'b0;
         up <= 1'b0;
-        down <= 1'b0;
- 
-     end
+        right <= 1'b1; //il gioco inizia che il serpente si muove verso destra
+        left <= 1'b0;
+    end
 
-     else if (snake_head_x == snake_body_x[0] && snake_head_y < snake_body_y[0]) begin 
+    else if (right_register==1'b1 || left_register==1'b1) begin
+        if (snake_head_y == snake_body_y[0] && snake_head_x > snake_body_x[0]) begin
 
-        right <= left_P;  
-        left <= right_P;
-        up <= 1'b0; 
-        down <= 1'b0;
-     end
+        down <= right_register;  
+        up <= left_register;
+        right <= 1'b0;
+        left <= 1'b0;
+
+        end
+
+        else if (snake_head_y == snake_body_y[0] && snake_head_x < snake_body_x[0]) begin 
+        down <= left_register;  
+        up <= right_register;
+        right <= 1'b0;
+        left <= 1'b0;
+        
+
+        end
+
+        else if (snake_head_x == snake_body_x[0] && snake_head_y > snake_body_y[0]) begin 
+
+            right <= right_register;  
+            left <= left_register;
+            up <= 1'b0;
+            down <= 1'b0;
+    
+        end
+
+        else if (snake_head_x == snake_body_x[0] && snake_head_y < snake_body_y[0]) begin 
+
+            right <= left_register;  
+            left <= right_register;
+            up <= 1'b0; 
+            down <= 1'b0;
+        end
+    end
+    else begin              //se non premo alcun pulsante, mantiene il movimento
+        right <= right;
+        left <= left;
+        up <= up;
+        down <= down;
+    end
 	  
-	  else begin
-			right <= 1'b0;  
-			left <= 1'b0;
-			up <= 1'b0; 
-			down <= 1'b0;
-	 end 
+	  
  end     
 endmodule
 
