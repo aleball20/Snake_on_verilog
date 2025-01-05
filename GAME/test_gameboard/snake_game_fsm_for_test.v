@@ -1,15 +1,13 @@
 /* Modulo di gioco. Qui si gestisce il comportamento dello snake e lo stato di gioco.
 Si definisce una griglia di gioco nel quale verrano collocati i blocchi del serpente e il frutto.
-Ogni singola cella della griglia ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨ grande 5x5 pixels. Essendo la game_area grande 620x405 pixels vi sarÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â 
-la griglia di gioco avrÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â  dimensinone 124x81 celle */
+Ogni singola cella della griglia dimensinone 124x81 celle */
 
 
-
-module snake_game_fsm_for_test(right, left, up, down, current_state, next_state, clock_25, frame_tik, game_tik, reset, right_P, left_P, score, en_snake_body,
-					snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, snake_length); 
+module snake_game_fsm_for_test( collision_detected, right, left, up, down, right_sync, left_sync, right_register, left_register, current_state, next_state, clock_25, frame_tik, game_tik, reset, right_P, left_P, score,
+					snake_head_x, snake_head_y, snake_body_x, body_count, snake_body_y, fruit_x, fruit_y, snake_length); 
 
 parameter SNAKE_LENGTH_BIT = 4;
-parameter SNAKE_LENGTH_MAX = 16; 
+parameter SNAKE_LENGTH_MAX = 2**SNAKE_LENGTH_BIT; 
 parameter HORIZONTAL_CELLS_NUM = 124; //da aggiungere in futuro
 parameter VERTICAL_CELLS_NUM = 81;
 
@@ -28,7 +26,7 @@ parameter FRUIT_UPDATE = 3'b110;
 
 parameter BEGIN_SNAKE_HEAD_X = 7'd8;  // Posizione iniziale della testa del serpente (centrato sulla griglia)
 parameter BEGIN_SNAKE_HEAD_Y = 7'd40;    // Posizione centrata nella griglia di 124x81
-parameter BEGIN_SNAKE_LENGTH = 14'd6;       // Lunghezza iniziale del serpente (ad esempio, 4 segmenti)
+parameter BEGIN_SNAKE_LENGTH = 14'd6;     // Lunghezza iniziale del serpente (ad esempio, 6 segmenti)
 parameter BEGIN_FRUIT_X = 7'd8;       // Posizione iniziale del frutto (randomizzata o predefinita)
 parameter BEGIN_FRUIT_Y = 7'd42;
 
@@ -37,18 +35,24 @@ parameter BEGIN_FRUIT_Y = 7'd42;
     input game_tik, frame_tik;                                      // tik a 30Hz in uscia da un divisore con ingresso il frame_tik
     input reset;                                                    // Reset del gioco per riportare il gioco a stato iniziale
     input left_P, right_P;                                          // Comandi di movimento
-    output en_snake_body;                                           //Abilitazione all'invio dei blocchi del corpo
     output [6:0] snake_head_x, snake_head_y;                         // Posizione della testa del serpente (range 0-123 per x, 0-80 per y)
     output [6:0] snake_body_x;                                      // Posizioni del corpo del serpente (massimo 16 segmenti)
     output [6:0] snake_body_y;                                       // Posizioni del corpo del serpente (massimo 16 segmenti)
     output [6:0] fruit_x, fruit_y;      							   // Posizione del frutto (randomica)
     output [SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
+    output reg [SNAKE_LENGTH_BIT-1:0] body_count;                   //counter per inviare il corpo dello snake
+																					//bit di abilitzione al movimento dello snake
     output reg [7:0] score;                                           // Punteggio corrente del gioco
 
 //DA RIMUOVERE QUESTI OUTPUT LASCIANDO SOLO IL REG, farlo anche sopra nel module
-output right, left, up, down;
-output reg [2:0] current_state; 
-output reg [2:0] next_state;
+output right, left, up, down, right_sync, left_sync, right_register, left_register;
+output  [2:0] current_state; 
+output  [2:0] next_state;
+output collision_detected;
+
+
+ reg [2:0] current_state; 
+reg [2:0] next_state;
 
 
 // registri di posizione e wire
@@ -59,24 +63,22 @@ reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-1];
 reg [SNAKE_LENGTH_BIT-1:0] snake_length;               
 reg [6:0] fruit_x, fruit_y;
 reg up, down, left, right;
+reg right_sync, left_sync;
+reg right_register, left_register;
+reg [1:0]right_shifter, left_shifter;
 
 wire [6:0] new_position_x, new_position_y;
 wire fruit_eaten;
 
 reg collision_fruit, collision_detected;
 
-//definisco wire della rete combinatoria di uscita
+//definisco reg della rete combinatoria di uscita
 
-reg en_move, en_fruit, sync_reset, en_snake_body;
-
-
-
+reg en_move, en_fruit, sync_reset;
 
 
 // Indice per ciclo for
 integer i; 
-
-
 
 
  //registro di uscita della rete di Moore
@@ -88,7 +90,7 @@ always @(posedge clock_25 or negedge reset)
         
     
     else 
-        current_state <= next_state;  // Se non ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨ attivo il reset, aggiorna lo stato corrente con quello successivo
+        current_state <= next_state;  // Se non attivo il reset, aggiorna lo stato corrente con quello successivo
 
 
 
@@ -169,7 +171,6 @@ always @(current_state)
             en_move = 1'b0;
             sync_reset= 1'b0;
             en_fruit = 1'b0;
-            en_snake_body=1'b1; 
              
             
         end
@@ -178,7 +179,6 @@ always @(current_state)
             en_move = 1'b0;
             sync_reset= 1'b0;
             en_fruit = 1'b1; 
-            en_snake_body = 1'b1;
              
         end
 
@@ -186,45 +186,39 @@ always @(current_state)
             en_move = 1'b0;
             sync_reset= 1'b0;
             en_fruit = 1'b1;
-            en_snake_body = 1'b1;
          
         end
         
         COLLISION: begin
             // Imposta il segnale di fine gioco (game over)
-            // Il gioco ÃƒÂ¨ finito
+            // Il gioco ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨ finito
             en_move = 1'b0;
-            sync_reset= 1'b0;
+            sync_reset= 1'b1;
             en_fruit = 1'b0; 
-            en_snake_body = 1'b1;
         end
 
         MOVING: begin
             en_move = 1'b0;
             sync_reset= 1'b0;
             en_fruit = 1'b0;
-            en_snake_body = 1'b0;
         end
 
         MOVE_DONE: begin
             en_move = 1'b1;
             sync_reset= 1'b0;
             en_fruit = 1'b0;
-            en_snake_body = 1'b1;
         end
 
         IDLE: begin
             en_move = 1'b0;
             sync_reset =1'b1;
             en_fruit = 1'b0;
-            en_snake_body = 1'b1;
         end
 			
 		default begin
-			en_move = 1'b0;
+				en_move = 1'b0;
             sync_reset =1'b1;
             en_fruit = 1'b0;
-            en_snake_body = 1'b1;
 		end
 
 
@@ -232,22 +226,54 @@ always @(current_state)
 
 //assign body_output
 
-    reg [SNAKE_LENGTH_BIT-1:0] count=0;
+    
+	 
+   /* always @ (posedge clock_25) begin
+		  if (en_move==1'b1) begin 
+            body_count<=0;
+			end
+      
+			else if(frame_tik==1'b0 || body_count == SNAKE_LENGTH_MAX-1)
+				body_count <= body_count;
+        else
+            body_count <= body_count + 1'b1;
+				
+			snake_body_x <= snake_body_x_reg[body_count];
+			snake_body_y <= snake_body_y_reg[body_count];
+    end*/
 
-    always @ (posedge clock_25) begin
-        if (en_snake_body==1'b0)
-            count<=0;
-        else if (~frame_tik) 
-            count <= count;
-        else 
-            count <= count + 1'b1;
-            snake_body_x <= snake_body_x_reg[count] ;
-            snake_body_y <= snake_body_y_reg[count];
-    end    
+//inizializzazione dell'uscita nello stato di IDLE   
+	
+	always @ (posedge clock_25 or negedge reset) begin
+		if (~reset)
+			body_count <= 0;
+			
+		else if (sync_reset) begin
+			if( body_count == SNAKE_LENGTH_MAX-1)
+				body_count <= body_count;
+        else
+            body_count <= body_count + 1'b1;
+				
+		snake_body_x <= snake_body_x_reg[body_count];
+		snake_body_y <= snake_body_y_reg[body_count];
+		end
+		
+		else begin
+			 if (en_move==1'b1) begin 
+            body_count<=0;
+			end
+      
+			else if(frame_tik==1'b0 || body_count == SNAKE_LENGTH_MAX-1)
+				body_count <= body_count;
+        else
+            body_count <= body_count + 1'b1;
+				
+			snake_body_x <= snake_body_x_reg[body_count];
+			snake_body_y <= snake_body_y_reg[body_count];
+		end
+	end
 
-
-
-always @ (posedge clock_25) begin //il reset non ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¨ inserito dato che quando lo si effettua si va in IDLE E QUINDI IL sync_reset ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¨ attivo
+always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si effettua si va in IDLE E QUINDI sync_reset  attivo
 
     if(sync_reset ) begin //INIZIALIZZAZIONE
 
@@ -257,7 +283,7 @@ always @ (posedge clock_25) begin //il reset non ÃƒÆ’Ã†â€™Ãƒâ€
         fruit_x <= BEGIN_FRUIT_X;         // Posizione iniziale del frutto (randomizzata o predefinita)
         fruit_y <= BEGIN_FRUIT_Y;
         score <= 8'd0;            // Punteggio iniziale del gioco   
-        for (i=0; i< SNAKE_LENGTH_MAX-1 ;i=i+1) begin
+        for (i=0; i< SNAKE_LENGTH_MAX ;i=i+1) begin
 		  
             if (i < BEGIN_SNAKE_LENGTH-1) begin
                 snake_body_x_reg[i] <= BEGIN_SNAKE_HEAD_X-1'b1-i;
@@ -271,7 +297,7 @@ always @ (posedge clock_25) begin //il reset non ÃƒÆ’Ã†â€™Ãƒâ€
 
     end
 
-    else if(en_move) begin
+    else if(en_move==1'b1 && collision_detected== 1'b0) begin
         // Aggiorna la posizione della testa del serpente in base agli input
             if (up) begin
                 if (snake_head_y > 0) begin
@@ -303,14 +329,18 @@ always @ (posedge clock_25) begin //il reset non ÃƒÆ’Ã†â€™Ãƒâ€
             
       
             //Aggiornamento del corpo del serpente 
+				
+				// Il primo segmento del corpo segue la testa del serpente
+            snake_body_x_reg[0] <= snake_head_x;
+            snake_body_y_reg[0] <= snake_head_y; 
 
             // Lo spostamento del corpo avviene spostando ogni segmento verso la posizione del segmento precedente
-            for (i =0; i <SNAKE_LENGTH_MAX-1 ; i = i + 1) begin
+            for (i =1; i <SNAKE_LENGTH_MAX ; i = i + 1) begin
             // Sposta ogni segmento del corpo alla posizione del segmento precedente
 				
             if(i< snake_length-1)begin
-					snake_body_x_reg[i+1] <= snake_body_x_reg[i];
-					snake_body_y_reg[i+1] <= snake_body_y_reg[i];
+					snake_body_x_reg[i] <= snake_body_x_reg[i-1];
+					snake_body_y_reg[i] <= snake_body_y_reg[i-1];
 					end
 				else begin
 					snake_body_x_reg[i] <= snake_body_x_reg[i];
@@ -318,10 +348,7 @@ always @ (posedge clock_25) begin //il reset non ÃƒÆ’Ã†â€™Ãƒâ€
             end
 				
 				end
-
-            // Il primo segmento del corpo segue la testa del serpente
-            snake_body_x_reg[0] <= snake_head_x;
-            snake_body_y_reg[0] <= snake_head_y;  
+ 
     end 
 
     else if(en_fruit) begin
@@ -374,25 +401,44 @@ end
 
 //collision detector           
 integer j=0;
+always @ (snake_head_x or snake_head_y or left or right or down or up) begin
+	for (j = 0; j < snake_length; j = j + 1'b1) begin
+        // Controlla se la testa del serpente e sulla stessa posizione di uno dei segmenti del corpo
+    if (snake_head_x == snake_body_x_reg[j] && snake_head_y == snake_body_y_reg[j])
+        collision_detected = 1'b1; // Se la testa del serpente sul corpo, collisione
+    end
+	 
+    // Verifica se la testa del serpente fuori dai bordi
+    if ((snake_head_x == 0 && left==1) || (snake_head_x == (HORIZONTAL_CELLS_NUM-1'b1) &&  right==1 )||
+         (snake_head_y == 0  && up==1) || (snake_head_y ==( VERTICAL_CELLS_NUM-1'b1) && down==1) )
 
- always @ (snake_head_x or snake_head_y or snake_length) begin
+       collision_detected = 1'b1;    // Se la testa  fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
+       
+  
+   else       // Verifica se la testa del serpente ha colpito se stessa (ossia una posizione gia occupata dal corpo)
+       
+        collision_detected = 0; // Inizialmente, nessuna collisione      
+end
 
-     // Verifica se la testa del serpente ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨ fuori dai bordi
+
+ /*always @ (snake_head_x or snake_head_y or snake_length) begin
+
+     // Verifica se la testa del serpente fuori dai bordi
      if (snake_head_x < 0 || snake_head_x > HORIZONTAL_CELLS_NUM-1'b1 || snake_head_y < 0 || snake_head_y > VERTICAL_CELLS_NUM-1'b1) begin
-        // Se la testa ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨ fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
+        // Se la testa  fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
         collision_detected = 1;
 		  j=0;
 			end
-    // Verifica se la testa del serpente ha colpito se stessa (ossia una posizione giÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â  occupata dal corpo)
+    // Verifica se la testa del serpente ha colpito se stessa (ossia una posizione gia occupata dal corpo)
     else begin
         collision_detected = 0; // Inizialmente, nessuna collisione
         for (j = 0; j < snake_length; j = j + 1'b1) begin
-             // Controlla se la testa del serpente ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨ sulla stessa posizione di uno dei segmenti del corpo
+             // Controlla se la testa del serpente e sulla stessa posizione di uno dei segmenti del corpo
             if (snake_head_x == snake_body_x_reg[j] && snake_head_y == snake_body_y_reg[j])
-                collision_detected = 1'b1; // Se la testa del serpente ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨ sul corpo, collisione
+                collision_detected = 1'b1; // Se la testa del serpente sul corpo, collisione
         end
     end
- end
+ end */
  
  //rivlevatore di fronti del pulsante
 
@@ -425,6 +471,7 @@ always @ (posedge clock_25 or negedge reset ) begin
     end
     
 end
+
 //Definisco right_register e left_register che assumeranno il valore degli input right_sync e left_sync
 // fino al completamento della mossa successiva, ovvero fino all'ingresso nello stato move_done.
 always @ (posedge clock_25 or negedge reset) begin 
@@ -433,7 +480,13 @@ always @ (posedge clock_25 or negedge reset) begin
         right_register <= 1'b0;
         left_register <= 1'b0;
     end
-    else if(right_sync==1'b1 || left_sync==1'b1) begin   //se l'utente preme il pulsante i registri vengono aggiornati
+	 
+	  else if (sync_reset) begin
+        right_register <= 1'b0;
+        left_register <= 1'b0;
+    end
+	 
+    else if(sync_reset==1'b0 && (right_sync==1'b1 || left_sync==1'b1)) begin   //se l'utente preme il pulsante i registri vengono aggiornati
         if(right_sync==1'b1 && left_sync==1'b1 ) begin   //controllo se utente preme entrambi pulsanti, il serpente non cambia
             right_register <= 1'b0;
             left_register <= 1'b0;
@@ -463,10 +516,11 @@ always @ (posedge clock_25 or negedge reset) begin
         right <= 1'b1; //il gioco inizia che il serpente si muove verso destra
         left <= 1'b0;
     end
-
-    if (right_register==1'b1 || left_register==1'b1) begin
-        if (snake_head_y == snake_body_y[0] && snake_head_x > snake_body_x[0]) begin
-
+	
+	// se ho premuto uno dei pulsanti modifico le direzioni
+    else if (right_register==1'b1 || left_register==1'b1) begin 
+	 
+        if (snake_head_y == snake_body_y_reg[0] && snake_head_x > snake_body_x_reg[0]) begin
         down <= right_register;  
         up <= left_register;
         right <= 1'b0;
@@ -474,7 +528,7 @@ always @ (posedge clock_25 or negedge reset) begin
 
         end
 
-        else if (snake_head_y == snake_body_y[0] && snake_head_x < snake_body_x[0]) begin 
+        else if (snake_head_y == snake_body_y_reg[0] && snake_head_x < snake_body_x_reg[0]) begin 
         down <= left_register;  
         up <= right_register;
         right <= 1'b0;
@@ -483,16 +537,15 @@ always @ (posedge clock_25 or negedge reset) begin
 
         end
 
-        else if (snake_head_x == snake_body_x[0] && snake_head_y > snake_body_y[0]) begin 
-
-            right <= right_register;  
-            left <= left_register;
-            up <= 1'b0;
-            down <= 1'b0;
+        else if (snake_head_x == snake_body_x_reg[0] && snake_head_y < snake_body_y_reg[0]) begin 
+          right <= right_register;  
+          left <= left_register;
+          up <= 1'b0;
+          down <= 1'b0;
     
         end
 
-        else if (snake_head_x == snake_body_x[0] && snake_head_y < snake_body_y[0]) begin 
+        else if (snake_head_x == snake_body_x_reg[0] && snake_head_y > snake_body_y_reg[0]) begin 
 
             right <= left_register;  
             left <= right_register;
@@ -510,6 +563,3 @@ always @ (posedge clock_25 or negedge reset) begin
 	  
  end     
 endmodule
-
-
-

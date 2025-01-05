@@ -1,10 +1,10 @@
-module game_wrapper (CLOCK_50, KEY0, KEY2, KEY3, VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK, VGA_R, VGA_G, VGA_B);
+module game_wrapper (CLOCK_50, KEY0, KEY1, KEY3, VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK, VGA_R, VGA_G, VGA_B);
 
 parameter PIXEL_DISPLAY_BIT = 10;
 parameter SNAKE_LENGTH_BIT = 4;
 
 
-input CLOCK_50, KEY0, KEY2, KEY3;
+input CLOCK_50, KEY0, KEY1, KEY3;
 output VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK;
 output [PIXEL_DISPLAY_BIT-1'b1:0]  VGA_R, VGA_G, VGA_B;
 
@@ -16,11 +16,11 @@ wire [1:0] game_data;
 wire [1:0] selected_figure; 
 wire [7:0] score; 
 wire [PIXEL_DISPLAY_BIT-1'b1:0] X, Y;
-wire [SNAKE_LENGTH_BIT-1:0] snake_length;
-wire en_snake_body; 
+wire [SNAKE_LENGTH_BIT-1:0] snake_length; 
 wire game_tik, frame_tik;                                 
 wire reset;
 wire game_enable; 
+wire [SNAKE_LENGTH_BIT-1:0] body_count;
 wire display_area;
 wire datarom;
 wire data;
@@ -63,8 +63,8 @@ graphic_game my_graphic_game(
     .fruit_x(fruit_x),
     .fruit_y(fruit_y),
 	.game_enable(game_enable),
+    .body_count(body_count),
     .selected_symbol(selected_symbol),
-    .en_snake_body(en_snake_body),
     .snake_length(snake_length),
     .game_data(game_data),
     .selected_figure(selected_figure)
@@ -80,18 +80,18 @@ symbol my_symbol (
 snake_game_fsm my_snake_game_fsm (
     .clock_25(clock_25),
     .game_tik(game_tik),
-	 .frame_tik(frame_tik),
+	.frame_tik(frame_tik),
     .reset(reset),
-    .right_P(~KEY2),
+    .right_P(~KEY1),
     .left_P(~KEY3),
     .score(score),
-    .en_snake_body(en_snake_body),
     .snake_head_x(snake_head_x),
     .snake_head_y(snake_head_y),
     .snake_body_x(snake_body_x),
     .snake_body_y(snake_body_y),
     .fruit_x(fruit_x),
     .fruit_y(fruit_y),
+    .body_count(body_count),
     .snake_length(snake_length)
 );
 

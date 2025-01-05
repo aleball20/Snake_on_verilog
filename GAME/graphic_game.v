@@ -1,9 +1,9 @@
 
-module graphic_game ( reset, frame_tik, clock_25, X, Y, snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, game_enable, en_snake_body, snake_length, game_data, selected_figure);
+module graphic_game ( reset, frame_tik, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, game_enable, snake_length, game_data, selected_figure);
 
 parameter PIXEL_DISPLAY_BIT = 9;
 parameter SNAKE_LENGTH_BIT = 4;
-parameter SNAKE_LENGTH_MAX = 16;  
+parameter SNAKE_LENGTH_MAX = 2**SNAKE_LENGTH_BIT;  
 
 // Costanti per i tipi di figura
 
@@ -22,7 +22,7 @@ parameter BLOCK_SIZE = 5;
 
 input reset;                                                // Segnale di reset
 input clock_25;                                              // Clock a 25 MHz
-input en_snake_body;                                         //abilitazione all'invio dei blocchi del corpo
+input [SNAKE_LENGTH_BIT-1:0] body_count;                     //counter per ricostruire il corpo dello snake
 input frame_tik;                                             // negato del v_sync
 input [PIXEL_DISPLAY_BIT:0] X, Y;                           // Coordinate globali (contatori dello schermo)
 input [6:0] snake_head_x, snake_head_y;                                  // Coordinate della testa del serpente
@@ -31,7 +31,7 @@ input [6:0] fruit_x, fruit_y;                               // Coordinate del fr
 input [SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
 input [49:0] selected_symbol;                               // Colore del pixel in ingresso (2 bit)
 
-output game_enable;
+output reg game_enable;													 // Output: attiva il pixel
 output reg [1:0] game_data;                                 // Output: colore del pixel corrente
 output reg [1:0] selected_figure;                            // Output: tipo di figura (testa, corpo, coda, frutto)
 
@@ -47,21 +47,12 @@ assign game_area = (X>=58 && X<=678 && Y >= 43 && Y <= 448) ? 1'b1 : 1'b0;
 
 reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-1];        
 reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-1];  
-reg [`SNAKE_LENGTH_BIT-1:0] count=0;
+
 
 always @ (posedge clock_25) begin
-    if (en_snake_body==1'b0)
-        count<=0;
-		  
-    else if (~frame_tik)
-        count <= count;
-	else if (count == SNAKE_LENGTH_MAX-2)
-			count <= count;
-    else
-        count <= count + 1'b1;
-	snake_body_x_reg[count] <= snake_body_x;
-    snake_body_y_reg[count] <= snake_body_y;
- 
+
+    snake_body_x_reg[body_count] <= snake_body_x;
+    snake_body_y_reg[body_count] <= snake_body_y;
 end    
 
 
@@ -104,8 +95,8 @@ always @(posedge clock_25) begin
                     else begin
                             x_local <= x_local;
                             y_local <= y_local;
-                                      x_block <= x_block;
-                                      y_block <= y_block;
+                            x_block <= x_block;
+                            y_block <= y_block;
                     end
 
     else begin
@@ -166,8 +157,7 @@ end
 
 
 wire [5:0] pixel_index;										 // Indice del pixel (0-24) nel vettore
-assign pixel_index = y_local * 10 + x_local * 2 ;
-reg game_enable;                                            // Output: attiva il pixel
+assign pixel_index = y_local * 10 + x_local * 2 ;                                          
 reg addr_enable;
 integer i=0;
 
@@ -189,8 +179,8 @@ always @(posedge clock_25 or negedge reset) begin
 
         // Controlla se X,Y appartengono a uno dei blocchi
             
-            for (i =0 ;i< SNAKE_LENGTH_MAX-2 ; i=i+1 ) begin      //controllo tutte le parti del corspo tranne testa e coda  
-                if ((i < snake_length-1) &&(x_block_delay == snake_body_x_reg[i]) && (y_block_delay == snake_body_y_reg[i])) begin
+            for (i =0 ;i< SNAKE_LENGTH_MAX ; i=i+1 ) begin      //controllo tutte le parti del corspo tranne testa e coda  
+                if ((i < snake_length-2) &&(x_block_delay == snake_body_x_reg[i]) && (y_block_delay == snake_body_y_reg[i])) begin
                         addr_enable <= 1'b1;
                         selected_figure <= BODY;
                 end
