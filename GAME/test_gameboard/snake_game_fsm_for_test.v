@@ -39,13 +39,13 @@ parameter BEGIN_FRUIT_Y = 7'd42;
     output [6:0] snake_body_x;                                      // Posizioni del corpo del serpente (massimo 16 segmenti)
     output [6:0] snake_body_y;                                       // Posizioni del corpo del serpente (massimo 16 segmenti)
     output [6:0] fruit_x, fruit_y;      							   // Posizione del frutto (randomica)
+    output right, left, up, down;                                      //direzione del serpente
     output [SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
     output reg [SNAKE_LENGTH_BIT-1:0] body_count;                   //counter per inviare il corpo dello snake
-																					//bit di abilitzione al movimento dello snake
     output reg [7:0] score;                                           // Punteggio corrente del gioco
 
 //DA RIMUOVERE QUESTI OUTPUT LASCIANDO SOLO IL REG, farlo anche sopra nel module
-output right, left, up, down, right_sync, left_sync, right_register, left_register;
+output  right_sync, left_sync, right_register, left_register;
 output  [2:0] current_state; 
 output  [2:0] next_state;
 output collision_detected;
@@ -190,8 +190,7 @@ always @(current_state)
         end
         
         COLLISION: begin
-            // Imposta il segnale di fine gioco (game over)
-            // Il gioco ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨ finito
+            // Imposta il segnale di fine gioco (game over), Il gioco e' finito
             en_move = 1'b0;
             sync_reset= 1'b1;
             en_fruit = 1'b0; 
@@ -224,23 +223,6 @@ always @(current_state)
 
     endcase
 
-//assign body_output
-
-    
-	 
-   /* always @ (posedge clock_25) begin
-		  if (en_move==1'b1) begin 
-            body_count<=0;
-			end
-      
-			else if(frame_tik==1'b0 || body_count == SNAKE_LENGTH_MAX-1)
-				body_count <= body_count;
-        else
-            body_count <= body_count + 1'b1;
-				
-			snake_body_x <= snake_body_x_reg[body_count];
-			snake_body_y <= snake_body_y_reg[body_count];
-    end*/
 
 //inizializzazione dell'uscita nello stato di IDLE   
 	
@@ -420,25 +402,6 @@ always @ (snake_head_x or snake_head_y or left or right or down or up) begin
         collision_detected = 0; // Inizialmente, nessuna collisione      
 end
 
-
- /*always @ (snake_head_x or snake_head_y or snake_length) begin
-
-     // Verifica se la testa del serpente fuori dai bordi
-     if (snake_head_x < 0 || snake_head_x > HORIZONTAL_CELLS_NUM-1'b1 || snake_head_y < 0 || snake_head_y > VERTICAL_CELLS_NUM-1'b1) begin
-        // Se la testa  fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
-        collision_detected = 1;
-		  j=0;
-			end
-    // Verifica se la testa del serpente ha colpito se stessa (ossia una posizione gia occupata dal corpo)
-    else begin
-        collision_detected = 0; // Inizialmente, nessuna collisione
-        for (j = 0; j < snake_length; j = j + 1'b1) begin
-             // Controlla se la testa del serpente e sulla stessa posizione di uno dei segmenti del corpo
-            if (snake_head_x == snake_body_x_reg[j] && snake_head_y == snake_body_y_reg[j])
-                collision_detected = 1'b1; // Se la testa del serpente sul corpo, collisione
-        end
-    end
- end */
  
  //rivlevatore di fronti del pulsante
 
@@ -450,9 +413,9 @@ end
     else begin
         right_shifter <= { right_shifter[0], right_P};
         if (right_shifter[0]==1'b1 && right_shifter[1]==1'b0) 
-            right_sync=1'b1;
+            right_sync<=1'b1;
         else
-            right_sync=1'b0;       
+            right_sync<=1'b0;       
     end
     
 end

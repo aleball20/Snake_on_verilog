@@ -1,6 +1,5 @@
 
-
-module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_25, X, Y, snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, en_snake_body, snake_length, game_area, game_enable, game_data, selected_figure);
+module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, snake_length, game_area, game_enable, game_data, selected_figure, semaforo);
 
     parameter PIXEL_DISPLAY_BIT   = 9;
     parameter SNAKE_LENGTH_BIT    = 4;
@@ -22,7 +21,7 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 
     input reset;                                                // Segnale di reset
     input clock_25;                                              // Clock a 25 MHz
-    input en_snake_body;                                         //abilitazione all'invio dei blocchi del corpo
+    input [SNAKE_LENGTH_BIT-1:0] body_count;                                         //abilitazione all'invio dei blocchi del corpo
     input [PIXEL_DISPLAY_BIT:0] X, Y;                           // Coordinate globali (contatori dello schermo)
     input [6:0] snake_head_x, snake_head_y;                                  // Coordinate della testa del serpente
     input [6:0] snake_body_x, snake_body_y;                                  // Coordinate del corpo del serpente
@@ -39,31 +38,29 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 //
 //sTESSA COSA NEL MODULE ALL'INIZIOOO
 
-    //da mette come wireeeee quando test bench finito
+    //da mette come wireeeee quando test bench finito e semafro proprio da togliere
 
     output game_area; //playing game's area
     assign game_area = (X>=58 && X<=678 && Y >= 43 && Y <= 448) ? 1'b1 : 1'b0;  
+
+    output reg semaforo;
     
     //definisco cotnatori all'interno del blocco
     output reg  [6:0] x_block, y_block;    //contatori lungo x e y dei blocchi di gioco
     output reg [2:0] x_local, y_local;    //contatore del pixel (da 0 a 4) all'interno del blocco corrente
 
 
-    //ricostruzione della matrice del bodysnake
+//ricostruzione della matrice del bodysnake
 
-    reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-1];        
-    reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-1];  
-    reg [SNAKE_LENGTH_BIT-1:0] count=0;
+reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-1];        
+reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-1];  
 
-    always @ (posedge clock_25) begin
-        if (en_snake_body==1'b0)
-            count<=0;
-        else begin
-            snake_body_x_reg[count] <= snake_body_x;
-            snake_body_y_reg[count] <= snake_body_y;
-            count <= count + 1'b1;
-        end
-    end    
+
+always @ (posedge clock_25) begin
+
+    snake_body_x_reg[body_count] <= snake_body_x;
+    snake_body_y_reg[body_count] <= snake_body_y;
+end    
 
 
     // Calcola le coordinate relative al blocco
@@ -105,8 +102,8 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 						else begin
                                 x_local <= x_local;
                                 y_local <= y_local;
-										  x_block <= x_block;
-										  y_block <= y_block;
+								x_block <= x_block;
+								y_block <= y_block;
 						end
 
         else begin
@@ -117,59 +114,56 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 
     //Contatori ausiliari anticipati di 2 ciclio di clock
 
-  reg [6:0] x_block_delay, y_block_delay;
-  reg [2:0] x_local_delay, y_local_delay;
+  reg [6:0] x_block_advance, y_block_advance;
+  reg [2:0] x_local_advance, y_local_advance;
 
     always @(posedge clock_25) begin                
         if(~reset) begin
-            y_block_delay <= 7'b0000000;
-            y_local_delay <=3'b000;
-			x_block_delay <= 7'b0000000;
-            x_local_delay <=3'b000;
+            y_block_advance <= 7'b0000000;
+            y_local_advance <=3'b000;
+			x_block_advance <= 7'b0000000;
+            x_local_advance <=3'b000;
         end
 
         else if((Y>=Y_off) && (Y<=Y_fin))
 		  
 						if((X>=X_off-2) && (X<=X_fin-2)) begin
-							if(X>=BLOCK_SIZE * x_block_delay + X_off-2) begin 
-								x_block_delay <= x_block_delay +1'b1;
-								x_local_delay <=3'b000;
+							if(X>=BLOCK_SIZE * x_block_advance + X_off-2) begin 
+								x_block_advance <= x_block_advance +1'b1;
+								x_local_advance <=3'b000;
 							end
 							else
-								x_local_delay <=x_local_delay +1'b1;
+								x_local_advance <=x_local_advance +1'b1;
 						end
 
-						else if(X==797 && (Y>=BLOCK_SIZE * y_block_delay + Y_off) ) begin					  
-                                y_block_delay <= y_block_delay +1'b1;
-                                y_local_delay <=3'b000;
-                                x_block_delay <= 7'b0000000;
-                                x_local_delay <=x_local_delay;
+						else if(X==797 && (Y>=BLOCK_SIZE * y_block_advance + Y_off) ) begin					  
+                                y_block_advance <= y_block_advance +1'b1;
+                                y_local_advance <=3'b000;
+                                x_block_advance <= 7'b0000000;
+                                x_local_advance <=x_local_advance;
                         end
                     
                         else if (X ==797) begin
-                                y_local_delay <= y_local_delay +1'b1;
-                                x_block_delay <= 7'b0000000;
-                                x_local_delay <= x_local_delay;
+                                y_local_advance <= y_local_advance +1'b1;
+                                x_block_advance <= 7'b0000000;
+                                x_local_advance <= x_local_advance;
                         end
                       
                         else begin
-                                x_local_delay <= x_local_delay;
-                                y_local_delay <= y_local_delay;
-								x_block_delay <= x_block_delay;
-								y_block_delay <= y_block_delay;
+                                x_local_advance <= x_local_advance;
+                                y_local_advance <= y_local_advance;
+								x_block_advance <= x_block_advance;
+								y_block_advance <= y_block_advance;
                         end
 
         else begin
-            y_block_delay <= 7'b0000000;
-            y_local_delay <=3'b000;
+            y_block_advance <= 7'b0000000;
+            y_local_advance <=3'b000;
         end
     end
    
-
-    wire [5:0] pixel_index;										 // Indice del pixel (0-24) nel vettore
-	 assign pixel_index = y_local * 10 + x_local * 2 ;
-	 reg addr_enable;
-    reg [6:0] cont2;
+	reg addr_enable;
+    reg [3:0] cont2;
     integer i=0;
 
 
@@ -181,70 +175,74 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 
            addr_enable<=1'b0;
            selected_figure <= 2'b00;
+           cont2 <= 7'b0000; //contatore per indicare il quadratino di corpo selezionato
+           semaforo <=1'b0;
         end
         
         else if (game_area) begin
 
             // Default: disabilita il gioco
 				
-				selected_figure <= selected_figure;
+			selected_figure <= selected_figure;
 
 
             // Controlla se X,Y appartengono a uno dei blocchi
 				
-				for (i =1 ;i< SNAKE_LENGTH_MAX-2 ; i=i+1 ) begin      //controllo tutte le parti del corspo tranne testa e coda  
-                    if ((i < snake_length) &&(x_block_delay == snake_body_x_reg[cont2]) && (y_block_delay == snake_body_y_reg[cont2])) begin
-									addr_enable <= 1'b1;
-                            cont2 <=cont2 +1'b1;
-                            selected_figure <= BODY;
-                    end
-						  else
-								cont2 <= 7'b0000000;
-				end
+			for (i =1 ;i< SNAKE_LENGTH_MAX-2 ; i=i+1 ) begin      //controllo tutte le parti del corpo tranne testa e coda  
+                if ((i < snake_length-1) &&(x_block_advance == snake_body_x_reg[cont2]) && (y_block_advance == snake_body_y_reg[cont2])) begin
+                        cont2 <=cont2 +1'b1;
+						addr_enable <= 1'b1;
+                        selected_figure <= BODY;
+                        semaforo <=1'b0; //DA RIMUOVERE
+                end
+				else
+						cont2 <= 7'b0000;
+			end
 
-            if ((x_block_delay == snake_head_x) && (y_block_delay == snake_head_y)) begin 
+            if ((x_block_advance == snake_head_x) && (y_block_advance == snake_head_y)) begin 
                 
                  addr_enable <= 1'b1;      
                 selected_figure <= HEAD;
             end 
 
-            else if ((x_block_delay == snake_body_x_reg[snake_length-1]) && (y_block_delay == snake_body_y_reg[snake_length-1])) begin  //controllo coda
+            else if ((x_block_advance == snake_body_x_reg[snake_length-1]) && (y_block_advance == snake_body_y_reg[snake_length-1])) begin  //controllo coda
 
                 addr_enable <= 1'b1; 
                 selected_figure <= TAIL;
 
             end
 
-            else if ((x_block_delay == fruit_x) && (y_block_delay == fruit_y)) begin
+            else if ((x_block_advance == fruit_x) && (y_block_advance == fruit_y)) begin
 
                 addr_enable <= 1'b1;
                 selected_figure <= FRUIT;
             end
             				
-				else
-					addr_enable <= 1'b0;
         end
 		  
     end
 	 
-	 always @ (posedge clock_25 or negedge reset) begin
+	 always @ (posedge clock_25 or negedge reset) begin //questa potrebbe essere ridondante da verificare...
 		if (~reset)
 				game_enable <=1'b0;
 		else
 				game_enable <= addr_enable;
 	 end
+
+     
+    wire [5:0] pixel_index;								 // Indice del pixel (0-24) nel vettore
+    assign pixel_index = y_local * 10 + x_local * 2;  
 	 
-	 always @ (posedge clock_25 or negedge reset) begin
+	always @ (posedge clock_25 or negedge reset) begin
 	 
 		if (~reset)
 				game_data <=2'b00;
 
 	   else if (game_enable == 1'b1)
 					game_data <= {selected_symbol[49-pixel_index],selected_symbol[48-pixel_index]};
-					//game_data <= 2'b11;
 		else
 					game_data <=2'b00;
-end
+    end
 
 	 
     

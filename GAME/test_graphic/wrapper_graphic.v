@@ -1,16 +1,17 @@
 
 module wrapper_graphic(x_block, y_block, x_local, y_local, clock_25, reset, X, Y, snake_head_x, snake_head_y, snake_body_x, snake_body_y,
-fruit_x, fruit_y, snake_length, en_snake_body, selected_figure, game_enable, game_area, game_data);
+fruit_x, fruit_y, snake_length, body_count, selected_figure, game_enable, game_area, game_data, semaforo);
 
-paremeter PIXEL_DISPLAY_BIT = 9;
+parameter PIXEL_DISPLAY_BIT = 9;
+parameter SNAKE_LENGTH_BIT = 4;	
 
 input  clock_25, reset;
 input [PIXEL_DISPLAY_BIT:0] X, Y; 
 input [6:0] snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y;
 input [3:0] snake_length;
-input en_snake_body;
+input [SNAKE_LENGTH_BIT-1:0]body_count;
 
-output game_enable, game_area;
+output game_enable, game_area, semaforo;
 output [1:0] game_data, selected_figure;
 
 output [6:0] x_block, y_block;    
@@ -25,6 +26,7 @@ graphic_game_for_test my_graphic_game_for_test(
 .y_local(y_local),
 .clock_25(clock_25),
 .reset(reset),
+.body_count(body_count),
 .X (X),
 .Y (Y),
 .snake_head_x (snake_head_x),
@@ -34,11 +36,11 @@ graphic_game_for_test my_graphic_game_for_test(
 .fruit_x (fruit_x),
 .fruit_y (fruit_y), 
 .selected_symbol (selected_symbol),
-.en_snake_body (en_snake_body),
 .snake_length (snake_length),
 .game_area (game_area),
 .game_enable (game_enable),
 .game_data (game_data),
+.semaforo (semaforo),
 .selected_figure (selected_figure)
 );
 

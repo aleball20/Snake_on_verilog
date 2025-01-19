@@ -107,57 +107,54 @@ end
 
 //Contatori ausiliari anticipati di 2 ciclio di clock
 
-reg [6:0] x_block_delay, y_block_delay;
-reg [2:0] x_local_delay, y_local_delay;
+reg [6:0] x_block_advance, y_block_advance;
+reg [2:0] x_local_advance, y_local_advance;
 
 always @(posedge clock_25) begin                
     if(~reset) begin
-        y_block_delay <= 7'b0000000;
-        y_local_delay <=3'b000;
-        x_block_delay <= 7'b0000000;
-        x_local_delay <=3'b000;
+        y_block_advance <= 7'b0000000;
+        y_local_advance <=3'b000;
+        x_block_advance <= 7'b0000000;
+        x_local_advance <=3'b000;
     end
 
     else if((Y>=Y_off) && (Y<=Y_fin))
       
                     if((X>=X_off-2) && (X<=X_fin-2)) begin
-                        if(X>=BLOCK_SIZE * x_block_delay + X_off-2) begin 
-                            x_block_delay <= x_block_delay +1'b1;
-                            x_local_delay <=3'b000;
+                        if(X>=BLOCK_SIZE * x_block_advance + X_off-2) begin 
+                            x_block_advance <= x_block_advance +1'b1;
+                            x_local_advance <=3'b000;
                         end
                         else
-                            x_local_delay <=x_local_delay +1'b1;
+                            x_local_advance <=x_local_advance +1'b1;
                     end
 
-                    else if(X==797 && (Y>=BLOCK_SIZE * y_block_delay + Y_off) ) begin					  
-                            y_block_delay <= y_block_delay +1'b1;
-                            y_local_delay <=3'b000;
-                            x_block_delay <= 7'b0000000;
-                            x_local_delay <=x_local_delay;
+                    else if(X==797 && (Y>=BLOCK_SIZE * y_block_advance + Y_off) ) begin					  
+                            y_block_advance <= y_block_advance +1'b1;
+                            y_local_advance <=3'b000;
+                            x_block_advance <= 7'b0000000;
+                            x_local_advance <=x_local_advance;
                     end
                 
                     else if (X ==797) begin
-                            y_local_delay <= y_local_delay +1'b1;
-                            x_block_delay <= 7'b0000000;
-                            x_local_delay <= x_local_delay;
+                            y_local_advance <= y_local_advance +1'b1;
+                            x_block_advance <= 7'b0000000;
+                            x_local_advance <= x_local_advance;
                     end
                   
                     else begin
-                            x_local_delay <= x_local_delay;
-                            y_local_delay <= y_local_delay;
-                            x_block_delay <= x_block_delay;
-                            y_block_delay <= y_block_delay;
+                            x_local_advance <= x_local_advance;
+                            y_local_advance <= y_local_advance;
+                            x_block_advance <= x_block_advance;
+                            y_block_advance <= y_block_advance;
                     end
 
     else begin
-        y_block_delay <= 7'b0000000;
-        y_local_delay <=3'b000;
+        y_block_advance <= 7'b0000000;
+        y_local_advance <=3'b000;
     end
 end
-
-
-wire [5:0] pixel_index;										 // Indice del pixel (0-24) nel vettore
-assign pixel_index = y_local * 10 + x_local * 2 ;                                          
+                               
 reg addr_enable;
 integer i=0;
 
@@ -176,34 +173,35 @@ always @(posedge clock_25 or negedge reset) begin
 
         // Default: disabilita il gioco
 
+        selected_figure <= selected_figure;
 
         // Controlla se X,Y appartengono a uno dei blocchi
             
             for (i =0 ;i< SNAKE_LENGTH_MAX ; i=i+1 ) begin      //controllo tutte le parti del corspo tranne testa e coda  
-                if ((i < snake_length-2) &&(x_block_delay == snake_body_x_reg[i]) && (y_block_delay == snake_body_y_reg[i])) begin
+                if ((i < snake_length-2) &&(x_block_advance == snake_body_x_reg[i]) && (y_block_advance == snake_body_y_reg[i])) begin
                         addr_enable <= 1'b1;
                         selected_figure <= BODY;
                 end
-                else	begin
-								addr_enable <= 1'b0;
-								selected_figure <= 2'b00;  
-					end
+                else begin
+							addr_enable <= 1'b0;
+							selected_figure <= 2'b00;  
+				end
             end
 
-        if ((x_block_delay == snake_head_x) && (y_block_delay == snake_head_y)) begin 
+        if ((x_block_advance == snake_head_x) && (y_block_advance == snake_head_y)) begin 
             
-             addr_enable <= 1'b1;      
+            addr_enable <= 1'b1;      
             selected_figure <= HEAD;
         end 
 
-        else if ((x_block_delay == snake_body_x_reg[snake_length-1]) && (y_block_delay == snake_body_y_reg[snake_length-1])) begin  //controllo coda
+        else if ((x_block_advance == snake_body_x_reg[snake_length-1]) && (y_block_advance == snake_body_y_reg[snake_length-1])) begin  //controllo coda
 
             addr_enable <= 1'b1; 
             selected_figure <= TAIL;
 
         end
 
-        else if ((x_block_delay == fruit_x) && (y_block_delay == fruit_y)) begin
+        else if ((x_block_advance == fruit_x) && (y_block_advance == fruit_y)) begin
 
             addr_enable <= 1'b1;
             selected_figure <= FRUIT;
@@ -219,7 +217,10 @@ end
     else
             game_enable <= addr_enable;
  end
- 
+
+wire [5:0] pixel_index;								 // Indice del pixel (0-24) nel vettore
+assign pixel_index = y_local * 10 + x_local * 2 ;        
+
  always @ (posedge clock_25 or negedge reset) begin
  
     if (~reset)
@@ -227,7 +228,6 @@ end
 
    else if (game_enable == 1'b1)
                 game_data <= {selected_symbol[49-pixel_index],selected_symbol[48-pixel_index]};
-                //game_data <= 2'b11;
     else
                 game_data <=2'b00;
 end

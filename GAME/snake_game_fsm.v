@@ -219,23 +219,6 @@ always @(current_state)
 
     endcase
 
-//assign body_output
-
-    
-	 
-   /* always @ (posedge clock_25) begin
-		  if (en_move==1'b1) begin 
-            body_count<=0;
-			end
-      
-			else if(frame_tik==1'b0 || body_count == SNAKE_LENGTH_MAX-1)
-				body_count <= body_count;
-        else
-            body_count <= body_count + 1'b1;
-				
-			snake_body_x <= snake_body_x_reg[body_count];
-			snake_body_y <= snake_body_y_reg[body_count];
-    end*/
 
 //inizializzazione dell'uscita nello stato di IDLE   
 	

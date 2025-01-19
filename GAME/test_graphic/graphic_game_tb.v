@@ -10,7 +10,7 @@ reg [6:0] snake_head_x_tb, snake_head_y_tb, snake_body_x_tb, snake_body_y_tb, fr
 reg [3:0] snake_length_tb;
 reg en_snake_body_tb;
 
-wire game_enable_tb, game_area_tb;
+wire game_enable_tb, game_area_tb, semaforo_tb;
 wire [1:0] game_data_tb, selected_figure_tb;
 wire [6:0] x_block_tb, y_block_tb;
 wire [2:0] x_local_tb, y_local_tb;
@@ -37,6 +37,7 @@ wrapper_graphic my_wrapper_graphic(
 .game_enable (game_enable_tb),
 .game_data (game_data_tb),
 .game_area(game_area_tb),
+.semaforo(semaforo_tb),
 .selected_figure (selected_figure_tb)
 );
 
@@ -68,6 +69,9 @@ initial begin
 	en_snake_body_tb=1;
 	 snake_body_x_tb=7'b0001000;
     snake_body_y_tb=7'b0001000;
+	#2;
+	snake_body_x_tb=7'b0000001;
+    snake_body_y_tb=7'b0000001;
 	#50;
 	en_snake_body_tb=0;
     snake_length_tb=4'b0010;
