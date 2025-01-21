@@ -163,9 +163,26 @@ end
     end
    
 	reg addr_enable;
-    reg [3:0] cont2;
-    integer i=0;
+	reg body_found;
+   integer i=0;
 
+
+    //assegnazione della figura (testa, coda, frutto o corpo) al corrispondente blocco
+    //e stato inserito il for in un blocco always combinatorio apparte perche altrimenti vi erano problemi di compilazione
+    
+    always @(*) begin
+        body_found=1'b0;
+        semaforo =1'b0; //DA RIMUOVERE 
+
+        for (i =0 ;i< SNAKE_LENGTH_MAX-3 ; i=i+1 ) begin      //controllo tutte le parti del corpo tranne testa e coda 
+            if ((game_area==1) && (i<snake_length-2) && (x_block_advance == snake_body_x_reg[i]) && (y_block_advance == snake_body_y_reg[i])) begin
+                    body_found=1'b1;
+                    semaforo =1'b1; //DA RIMUOVERE
+            end                 
+        end
+    end
+
+   
 
     always @(posedge clock_25 or negedge reset) begin
 
@@ -175,8 +192,6 @@ end
 
            addr_enable<=1'b0;
            selected_figure <= 2'b00;
-           cont2 <= 7'b0000; //contatore per indicare il quadratino di corpo selezionato
-           semaforo <=1'b0;
         end
         
         else if (game_area) begin
@@ -185,25 +200,16 @@ end
 				
 			selected_figure <= selected_figure;
 
-
-            // Controlla se X,Y appartengono a uno dei blocchi
-				
-			for (i =1 ;i< SNAKE_LENGTH_MAX-2 ; i=i+1 ) begin      //controllo tutte le parti del corpo tranne testa e coda  
-                if ((i < snake_length-1) &&(x_block_advance == snake_body_x_reg[cont2]) && (y_block_advance == snake_body_y_reg[cont2])) begin
-                        cont2 <=cont2 +1'b1;
-						addr_enable <= 1'b1;
-                        selected_figure <= BODY;
-                        semaforo <=1'b0; //DA RIMUOVERE
-                end
-				else
-						cont2 <= 7'b0000;
-			end
-
             if ((x_block_advance == snake_head_x) && (y_block_advance == snake_head_y)) begin 
                 
                  addr_enable <= 1'b1;      
                 selected_figure <= HEAD;
             end 
+
+            else if (body_found ==1 ) begin
+                addr_enable <= 1'b1;
+                selected_figure <= BODY;
+            end
 
             else if ((x_block_advance == snake_body_x_reg[snake_length-1]) && (y_block_advance == snake_body_y_reg[snake_length-1])) begin  //controllo coda
 

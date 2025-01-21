@@ -61,6 +61,7 @@ wrapper_general_for_test my_wrapper_general_for_test(
     .left_sync(left_sync_tb),
     .right_register(right_register_tb), 
     .left_register(left_register_tb),
+	 .selected_figure(selected_figure_tb),
     .game_enable(game_enable_tb), 
     .game_area(game_area_tb),
     .semaforo(semaforo_tb),

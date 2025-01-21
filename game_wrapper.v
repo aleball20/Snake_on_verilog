@@ -13,7 +13,7 @@ wire [6:0] snake_body_x;
 wire [6:0] snake_body_y;
 wire [49:0] selected_symbol;               
 wire [1:0] game_data;                                 
-wire [1:0] selected_figure; 
+wire [3:0] selected_figure; 
 wire [7:0] score; 
 wire [PIXEL_DISPLAY_BIT-1'b1:0] X, Y;
 wire [SNAKE_LENGTH_BIT-1:0] snake_length; 
@@ -28,6 +28,7 @@ wire clock_25;
 wire [3:0] y_count;
 wire [7:0]x_count;
 wire [6:0] fruit_x, fruit_y;
+wire up, down, left, right;
 
 
 assign VGA_BLANK=1'b1;
@@ -55,7 +56,6 @@ graphic_game my_graphic_game(
     .reset(reset),
     .X(X),
     .Y(Y),
-    .frame_tik(frame_tik),
     .snake_head_x(snake_head_x),
     .snake_head_y(snake_head_y),
     .snake_body_x(snake_body_x),
@@ -64,6 +64,10 @@ graphic_game my_graphic_game(
     .fruit_y(fruit_y),
 	.game_enable(game_enable),
     .body_count(body_count),
+    .up(up),
+    .down(down),
+    .left(left),
+    .right(right),
     .selected_symbol(selected_symbol),
     .snake_length(snake_length),
     .game_data(game_data),
@@ -92,7 +96,11 @@ snake_game_fsm my_snake_game_fsm (
     .fruit_x(fruit_x),
     .fruit_y(fruit_y),
     .body_count(body_count),
-    .snake_length(snake_length)
+    .snake_length(snake_length),
+    .up(up),
+    .down(down),
+    .left(left),
+    .right(right)
 );
 
 vga_controller my_vga_controller(

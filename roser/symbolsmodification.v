@@ -3,7 +3,7 @@ module symbol (clock_25, selected_figure, selected_symbol);
 input clock_25;
 input [3:0]selected_figure;
 output reg [49:0]selected_symbol;
-reg [49:0] figures[15:0];
+reg [49:0] figures[9:0];
 
 initial begin
    
