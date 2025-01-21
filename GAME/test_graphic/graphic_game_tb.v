@@ -11,7 +11,7 @@ reg [3:0] snake_length_tb;
 reg en_snake_body_tb;
 
 wire game_enable_tb, game_area_tb, semaforo_tb;
-wire [1:0] game_data_tb, selected_figure_tb;
+wire [1:0] color_data_tb, selected_figure_tb;
 wire [6:0] x_block_tb, y_block_tb;
 wire [2:0] x_local_tb, y_local_tb;
 
@@ -35,7 +35,7 @@ wrapper_graphic my_wrapper_graphic(
 .en_snake_body (en_snake_body_tb),
 .snake_length (snake_length_tb),
 .game_enable (game_enable_tb),
-.game_data (game_data_tb),
+.color_data (color_data_tb),
 .game_area(game_area_tb),
 .semaforo(semaforo_tb),
 .selected_figure (selected_figure_tb)

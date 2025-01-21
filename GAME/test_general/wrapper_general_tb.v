@@ -22,7 +22,7 @@ wire [PIXEL_DISPLAY_BIT:0] X_tb,Y_tb;
 wire [2:0] next_state_tb, current_state_tb;
 
 wire game_enable_tb, game_area_tb, semaforo_tb;
-wire [1:0] game_data_tb, selected_figure_tb;
+wire [1:0] color_data_tb, selected_figure_tb;
 wire [6:0] x_block_tb, y_block_tb;    
 wire[2:0] x_local_tb, y_local_tb;    
 
@@ -65,7 +65,7 @@ wrapper_general_for_test my_wrapper_general_for_test(
     .game_enable(game_enable_tb), 
     .game_area(game_area_tb),
     .semaforo(semaforo_tb),
-    .game_data(game_data_tb)    
+    .color_data(color_data_tb)    
 );
 
 //clock generation

@@ -279,7 +279,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +-------------+-------+----------+-----------------------+
 ; Port        ; Type  ; Severity ; Details               ;
 +-------------+-------+----------+-----------------------+
-; game_data   ; Input ; Info     ; Stuck at GND          ;
+; color_data   ; Input ; Info     ; Stuck at GND          ;
 ; game_enable ; Input ; Info     ; Stuck at GND          ;
 +-------------+-------+----------+-----------------------+
 

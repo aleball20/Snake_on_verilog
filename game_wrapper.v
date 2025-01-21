@@ -12,7 +12,7 @@ wire [6:0] snake_head_x, snake_head_y;
 wire [6:0] snake_body_x;
 wire [6:0] snake_body_y;
 wire [49:0] selected_symbol;               
-wire [1:0] game_data;                                 
+wire [1:0] color_data;                                 
 wire [3:0] selected_figure; 
 wire [7:0] score; 
 wire [PIXEL_DISPLAY_BIT-1'b1:0] X, Y;
@@ -70,7 +70,7 @@ graphic_game my_graphic_game(
     .right(right),
     .selected_symbol(selected_symbol),
     .snake_length(snake_length),
-    .game_data(game_data),
+    .color_data(color_data),
     .selected_figure(selected_figure)
 );
 
@@ -112,7 +112,7 @@ vga_controller my_vga_controller(
 .datarom(datarom),
 .clock_25(clock_25),
 .game_enable(game_enable),
-.game_data(game_data)
+.color_data(color_data)
 );
 
 

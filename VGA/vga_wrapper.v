@@ -1,9 +1,9 @@
-module vga_wrapper (clock_25,X,Y, KEY0, VGA_R, VGA_G, VGA_B, VGA_HS, VGA_VS, VGA_SYNC, VGA_BLANK, VGA_CLK, game_data, game_enable, datarom);
+module vga_wrapper (clock_25,X,Y, KEY0, VGA_R, VGA_G, VGA_B, VGA_HS, VGA_VS, VGA_SYNC, VGA_BLANK, VGA_CLK, color_data, game_enable, datarom);
 
 parameter PIXEL_DISPLAY_BIT  = 10;
 
 input game_enable, datarom;
-input [1:0] game_data;
+input [1:0] color_data;
 input clock_25, KEY0;
 
 output[PIXEL_DISPLAY_BIT-1'b1:0] X,Y;
@@ -22,7 +22,7 @@ vga_controller my_vga_controller(
 .datarom(datarom),
 .clock_25(clock_25),
 .game_enable(game_enable),
-.game_data(game_data)
+.color_data(color_data)
 );
 
 vga_tracker my_vga_tracker(

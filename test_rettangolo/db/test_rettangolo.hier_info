@@ -102,8 +102,8 @@ VGA_VS <= vga_tracker:my_vga_tracker.v_sync
 VGA_SYNC <= <GND>
 VGA_BLANK <= <VCC>
 VGA_CLK <= clock_25.DB_MAX_OUTPUT_PORT_TYPE
-game_data[0] => game_data[0].IN1
-game_data[1] => game_data[1].IN1
+color_data[0] => color_data[0].IN1
+color_data[1] => color_data[1].IN1
 game_enable => game_enable.IN1
 datarom => datarom.IN1
 
@@ -181,10 +181,10 @@ game_enable => red.OUTPUTSELECT
 game_enable => red.OUTPUTSELECT
 game_enable => green.OUTPUTSELECT
 game_enable => green.OUTPUTSELECT
-game_data[0] => Decoder0.IN1
-game_data[0] => green.DATAB
-game_data[1] => Decoder0.IN0
-game_data[1] => red.DATAB
+color_data[0] => Decoder0.IN1
+color_data[0] => green.DATAB
+color_data[1] => Decoder0.IN0
+color_data[1] => red.DATAB
 
 
 |prova_rettangolo_wrapper|vga_wrapper:my_vga_wrapper|vga_tracker:my_vga_tracker

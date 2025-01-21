@@ -1,4 +1,4 @@
-module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, left, right, up, down, selected_symbol, snake_length, game_enable, game_data, selected_figure);
+module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, left, right, up, down, selected_symbol, snake_length, game_enable, color_data, selected_figure);
 
     parameter PIXEL_DISPLAY_BIT   = 9;
     parameter SNAKE_LENGTH_BIT    = 4;
@@ -36,12 +36,12 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
     input up, down, left, right;                                 //direzione attuale dello snake
 
     output reg game_enable;                                     // Output: attiva il pixel
-    output reg [1:0] game_data;                                 // Output: colore del pixel corrente
+    output reg [1:0] color_data;                                 // Output: colore del pixel corrente
     output reg [3:0] selected_figure;                            // Output: tipo di figura (testa, corpo, coda, frutto)
 
 
     wire game_area; //playing game's area
-    assign game_area = (X>=58 && X<=678 && Y >= 43 && Y <= 448) ? 1'b1 : 1'b0;  
+    assign game_area = (X>=58 && X<=679 && Y >= 43 && Y =< 448) ? 1'b1 : 1'b0;  
 
     
     //definisco contatori all'interno del blocco
@@ -273,12 +273,12 @@ end
 	always @ (posedge clock_25 or negedge reset) begin
 	 
 		if (~reset)
-				game_data <=2'b00;
+				color_data <=2'b00;
 
 	   else if (game_enable == 1'b1)
-					game_data <= {selected_symbol[49-pixel_index],selected_symbol[48-pixel_index]};
+					color_data <= {selected_symbol[49-pixel_index],selected_symbol[48-pixel_index]};
 		else
-					game_data <=2'b00;
+					color_data <=2'b00;
     end
 
 	 

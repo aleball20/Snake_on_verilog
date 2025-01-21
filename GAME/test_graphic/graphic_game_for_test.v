@@ -1,5 +1,5 @@
 
-module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, snake_length, game_area, game_enable, game_data, selected_figure, semaforo);
+module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, snake_length, game_area, game_enable, color_data, selected_figure, semaforo);
 
     parameter PIXEL_DISPLAY_BIT   = 9;
     parameter SNAKE_LENGTH_BIT    = 4;
@@ -30,7 +30,7 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
     input [49:0] selected_symbol;                                // Colore del pixel in ingresso (2 bit)
 
     output reg game_enable;                                     // Output: attiva il pixel
-    output reg [1:0] game_data;                                 // Output: colore del pixel corrente
+    output reg [1:0] color_data;                                 // Output: colore del pixel corrente
     output reg [1:0] selected_figure;                            // Output: tipo di figura (testa, corpo, coda, frutto)
 
 
@@ -242,12 +242,12 @@ end
 	always @ (posedge clock_25 or negedge reset) begin
 	 
 		if (~reset)
-				game_data <=2'b00;
+				color_data <=2'b00;
 
 	   else if (game_enable == 1'b1)
-					game_data <= {selected_symbol[49-pixel_index],selected_symbol[48-pixel_index]};
+					color_data <= {selected_symbol[49-pixel_index],selected_symbol[48-pixel_index]};
 		else
-					game_data <=2'b00;
+					color_data <=2'b00;
     end
 
 	 

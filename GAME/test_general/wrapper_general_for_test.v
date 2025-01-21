@@ -1,5 +1,5 @@
 module wrapper_general_for_test(collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, frame_tik, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
-snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y, game_enable, game_area, semaforo, game_data,
+snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y, game_enable, game_area, semaforo, color_data,
 selected_figure, x_block, y_block, x_local, y_local);
 
 parameter PIXEL_DISPLAY_BIT = 9;
@@ -21,7 +21,7 @@ output right, left, up, down, right_sync, left_sync, right_register, left_regist
 
 
 output game_enable, game_area, semaforo;
-output [1:0] game_data, selected_figure;
+output [1:0] color_data, selected_figure;
 output [6:0] x_block, y_block;    
 output [2:0] x_local, y_local;    
 
@@ -47,7 +47,7 @@ wrapper_graphic my_wrapper_graphic(
 .snake_length (snake_length),
 .game_area (game_area),
 .game_enable (game_enable),
-.game_data (game_data),
+.color_data (color_data),
 .semaforo (semaforo),
 .selected_figure (selected_figure)									    
 );

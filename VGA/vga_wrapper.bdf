@@ -89,7 +89,7 @@ applicable agreement for further details.
 	(input)
 	(rect 976 400 992 576)
 	(text "INPUT" (rect 0 15 10 43)(font "Arial" (font_size 6))(vertical))
-	(text "game_data[1..0]" (rect 0 87 12 167)(font "Arial" )(vertical))
+	(text "color_data[1..0]" (rect 0 87 12 167)(font "Arial" )(vertical))
 	(pt 8 0)
 	(drawing
 		(line (pt 12 84)(pt 12 59))
