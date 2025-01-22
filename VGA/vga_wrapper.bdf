@@ -413,7 +413,7 @@ applicable agreement for further details.
 )
 (symbol
 	(rect 272 208 432 288)
-	(text "divisore_frequenza" (rect 5 0 98 12)(font "Arial" ))
+	(text "clock_25_divisor" (rect 5 0 98 12)(font "Arial" ))
 	(text "inst" (rect 8 64 25 76)(font "Arial" ))
 	(port
 		(pt 0 32)

@@ -14,7 +14,7 @@ wire [6:0] snake_body_y;
 wire [49:0] selected_symbol;               
 wire [1:0] color_data;                                 
 wire [3:0] selected_figure; 
-wire [7:0] score; 
+wire [6:0] score; 
 wire [PIXEL_DISPLAY_BIT-1'b1:0] X, Y;
 wire [SNAKE_LENGTH_BIT-1:0] snake_length; 
 wire game_tik, frame_tik;                                 
@@ -29,17 +29,24 @@ wire [3:0] y_count;
 wire [7:0]x_count;
 wire [6:0] fruit_x, fruit_y;
 wire up, down, left, right;
+wire number_pixel;
+wire time_tik;
+wire score_time_enable, score_enable, time_enable ;
+wire [3:0] selected_score_number, selected_time_number, selected_number;
+wire [7:0] score_count, time_count, number_count;
 
-
+assign selected_number = selected_score_number | selected_time_number;
+assign number_count = score_count | time_count;
+assign score_time_enable = score_enable | time_enable;
 assign VGA_BLANK=1'b1;
 assign VGA_SYNC= 1'b0;
 assign VGA_CLK= clock_25;
 assign reset = KEY0;
 
-divisore_frequenza my_frequency_25MHz(
+clock_25_divisor my_frequency_25MHz(
 .clk_in(CLOCK_50),
 .reset(reset),
-.clock_out(clock_25)
+.clock_25(clock_25)
 );
 
 game_delay my_game_delay(
@@ -112,6 +119,7 @@ vga_controller my_vga_controller(
 .datarom(datarom),
 .clock_25(clock_25),
 .game_enable(game_enable),
+.score_time_enable(score_time_enable),
 .color_data(color_data)
 );
 
@@ -146,7 +154,41 @@ rom_background my_rombackground(
     );
 
 
+numbers my_numbers(
+    .number_pixel(number_pixel),
+    .clock_25(clock_25),
+    .number_count(number_count),
+    .selected_number (selected_number)
+);
 
+score_controller my_score_controller(
+    .clock_25(clock_25),
+    .reset(reset), 
+    .score(score), 
+    .score_enable(score_enable), 
+    .X(X),
+    .Y(Y), 
+    .selected_score_number(selected_score_number), 
+    .score_count(score_count), 
+    .number_pixel(number_pixel)
+);
 
+time_controller my_time_controller(
+.clock_25(clock_25),
+.reset(reset),
+.time_tik(time_tik), 
+.number_pixel(number_pixel), 
+.selected_time_number(selected_time_number), 
+.time_enable(time_enable), 
+.time_count(time_count), 
+.X(X),
+.Y(Y)
+);
+
+time_tik_divisor my_time_tik_divisor(
+    .clock_25 (clock_25),
+    .reset (reset), 
+    .time_tik(time_tik)
+);
 
 endmodule

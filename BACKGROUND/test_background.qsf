@@ -51,7 +51,7 @@ set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name VERILOG_FILE background_wrapper.v
 set_global_assignment -name VERILOG_FILE ../rom_background.v
-set_global_assignment -name VERILOG_FILE ../divisore_frequenza.v
+set_global_assignment -name VERILOG_FILE ../clock_25_divisor.v
 set_global_assignment -name VERILOG_FILE ../background.v
 set_global_assignment -name VERILOG_FILE ../VGA/vga_tracker.v
 set_global_assignment -name VERILOG_FILE ../VGA/vga_controller.v

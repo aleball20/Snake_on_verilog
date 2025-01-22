@@ -26,7 +26,7 @@ parameter FRUIT_UPDATE = 3'b110;
 
 parameter BEGIN_SNAKE_HEAD_X = 7'd8;  // Posizione iniziale della testa del serpente (centrato sulla griglia)
 parameter BEGIN_SNAKE_HEAD_Y = 7'd40;    // Posizione centrata nella griglia di 124x81
-parameter BEGIN_SNAKE_LENGTH = 14'd6;     // Lunghezza iniziale del serpente (ad esempio, 6 segmenti)
+parameter BEGIN_SNAKE_LENGTH = 4'd6;     // Lunghezza iniziale del serpente (ad esempio, 6 segmenti)
 parameter BEGIN_FRUIT_X = 7'd8;       // Posizione iniziale del frutto (randomizzata o predefinita)
 parameter BEGIN_FRUIT_Y = 7'd42;
 
@@ -43,7 +43,7 @@ parameter BEGIN_FRUIT_Y = 7'd42;
     output [SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
     output reg [SNAKE_LENGTH_BIT-1:0] body_count;                   //counter per inviare il corpo dello snake
 																					//bit di abilitzione al movimento dello snake
-    output reg [7:0] score;                                           // Punteggio corrente del gioco
+    output reg [6:0] score;                                           // Punteggio corrente del gioco
 
 
 
@@ -181,7 +181,7 @@ always @(current_state)
         FRUIT_UPDATE: begin
             en_move = 1'b0;
             sync_reset= 1'b0;
-            en_fruit = 1'b1;
+            en_fruit = 1'b0;
          
         end
         
@@ -252,7 +252,7 @@ always @(current_state)
 		end
 	end
 
-always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si effettua si va in IDLE E QUINDI sync_reset  attivo
+always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si effettua si va in IDLE E QUINDI sync_reset e attivo
 
     if(sync_reset ) begin //INIZIALIZZAZIONE
 
@@ -265,7 +265,7 @@ always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si
         score <= 8'd0;            // Punteggio iniziale del gioco   
         for (i=0; i< SNAKE_LENGTH_MAX ;i=i+1) begin
 		  
-            if (i < BEGIN_SNAKE_LENGTH-1) begin
+            if (i < BEGIN_SNAKE_LENGTH-1'b1) begin
                 snake_body_x_reg[i] <= BEGIN_SNAKE_HEAD_X-i;
                 snake_body_y_reg[i] <= BEGIN_SNAKE_HEAD_Y;
 					 end
@@ -334,9 +334,16 @@ always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si
     else if(en_fruit) begin
 
             // Incrementa il punteggio quando il serpente mangia un frutto
-            score <= score + 1'b1; 
+            if(score == 7'd99)
+                score <= 7'd0;      
+            else
+                score <= score + 1'b1; 
+
             // Aumenta la lunghezza del serpente
-            snake_length <= snake_length + 1'b1;
+            if(snake_length == SNAKE_LENGTH_MAX) 
+                snake_length <= snake_length;
+            else
+                snake_length <= snake_length + 1'b1;
 
             fruit_x <= new_position_x;
             fruit_y <= new_position_y;
@@ -355,24 +362,24 @@ assign fruit_eaten = (fruit_x==snake_head_x && fruit_y == snake_head_y) ? 1'b1 :
 PRBS random_sequence_x(
     .clock_25(clock_25),
 	 .reset(reset),
-    .seed(7'b0011100),
+    .initial_seed(7'b0011100),
     .rnd(new_position_x)
 );
 
 PRBS random_sequence_y(
     .clock_25(clock_25),
 	.reset(reset),
-    .seed(7'b0110000),
+    .initial_seed(7'b0110000),
     .rnd(new_position_y)
 );
 
-//controllo di una collisione del nuovo frutto con il corpo del serpente o fuori dal game_board
+//controllo di una collisione del nuovo frutto con il corpo del serpente o fuori dal game_area
 always @ (*)
 for (i=0; i <SNAKE_LENGTH_MAX -1  ; i=i+1) begin
     if((fruit_x == snake_head_x && fruit_y== snake_head_y) || (fruit_x == snake_body_x_reg[i] && fruit_y== snake_body_y_reg[i]))
         collision_fruit= 1'b1;
 
-    else if(fruit_x >= HORIZONTAL_CELLS_NUM || fruit_y >= VERTICAL_CELLS_NUM)
+    else if(fruit_x >= (HORIZONTAL_CELLS_NUM-1'b1) || fruit_y >= (VERTICAL_CELLS_NUM-1'b1))
         collision_fruit = 1'b1;
     
     else

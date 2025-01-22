@@ -1,15 +1,15 @@
 
-module vga_controller (display_area, reset, red, green, blue, datarom, clock_25, score_enable,
+module vga_controller (display_area, reset, red, green, blue, datarom, clock_25, score_time_enable,
                             game_enable, color_data);
 
 parameter PIXEL_DISPLAY_BIT   = 10;
 parameter BLACK = 2'b00;
-parameter GRREN = 2'b01;
+parameter GREEN = 2'b01;
 parameter RED   = 2'b10;
 parameter WHITE = 2'b11;
 
 output [PIXEL_DISPLAY_BIT-1'b1:0] red, green, blue;
-input reset, datarom, clock_25, score_enable, game_enable, display_area;
+input reset, datarom, clock_25, score_time_enable, game_enable, display_area;
 input [1:0] color_data;
 reg [PIXEL_DISPLAY_BIT-1'b1:0] red, green, blue;
 
@@ -33,14 +33,14 @@ else if (game_enable)
         
         case (color_data)
             BLACK: begin
-                red<= 10'h000;
-                green<=10'h000;
-                blue<= 10'h000;
+                red<= 10'h0;
+                green<=10'h0;
+                blue<= 10'h0;
             end
             GREEN: begin
                 red<= 10'h800;
                 green<=10'hf0f;
-                blue<=10'h000;
+                blue<=10'h0;
             end
             RED: begin
                 red<=10'hff0;
@@ -54,10 +54,10 @@ else if (game_enable)
             end
         endcase
     
-    else if (score_enable) begin //green
+    else if (score_time_enable) begin //green
             red<= 10'h800;
             green<=10'hf0f;
-            blue<=10'h000;
+            blue<=10'h0;
     end
 
     else if (datarom) begin //white

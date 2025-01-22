@@ -18,8 +18,8 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
 
     parameter X_off = 58;      // posizione (0,0) all'interno del rettangolo di gioco
     parameter Y_off = 43; 
-    parameter X_fin = X_off + 124 * 5;
-    parameter Y_fin = Y_off + 81 * 5;
+    parameter X_fin = X_off + 124 * 5 -1;
+    parameter Y_fin = Y_off + 81 * 5 -1;
 
 
     parameter BLOCK_SIZE = 5;   // Dimensione di ciascun blocco in pixel
@@ -41,7 +41,7 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
 
 
     wire game_area; //playing game's area
-    assign game_area = (X>=58 && X<=679 && Y >= 43 && Y =< 448) ? 1'b1 : 1'b0;  
+    assign game_area = (X>=58&& X<=677 && Y >= 43 && Y <= 447) ? 1'b1 : 1'b0;  
 
     
     //definisco contatori all'interno del blocco

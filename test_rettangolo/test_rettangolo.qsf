@@ -47,7 +47,7 @@ set_global_assignment -name VERILOG_FILE ../prova_rettangolo.v
 set_global_assignment -name VERILOG_FILE ../VGA/vga_wrapper.v
 set_global_assignment -name VERILOG_FILE ../VGA/vga_controller.v
 set_global_assignment -name VERILOG_FILE ../VGA/vga_tracker.v
-set_global_assignment -name VERILOG_FILE ../divisore_frequenza.v
+set_global_assignment -name VERILOG_FILE ../clock_25_divisor.v
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85

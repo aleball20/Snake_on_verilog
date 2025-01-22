@@ -10,7 +10,7 @@ wire [7:0]x_count;
 wire [3:0]y_count;
 wire data, datarom;
 
-divisore_frequenza my_frequency_25MHz #(1)(
+clock_25_divisor my_frequency_25MHz #(1)(
 .clk_in(CLOCK_50),
 .reset(KEY),
 .clock_out(clock_25)

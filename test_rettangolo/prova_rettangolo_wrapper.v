@@ -8,7 +8,7 @@ wire clock_25, display_area;
 wire [9:0] X,Y;
 wire datarom;
 
-divisore_frequenza my_frequency_25MHz (
+clock_25_divisor my_frequency_25MHz (
 .clk(CLOCK_50),
 .reset(KEY),
 .clock_25(clock_25)
