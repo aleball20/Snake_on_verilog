@@ -1,10 +1,11 @@
-module score_controller (clock_25, reset, score, score_enable , X,Y, selected_score_number, score_count, number_pixel );
+module score_controller (clock_25, reset, sync_reset, score, score_enable , X,Y, selected_score_number, score_count, number_pixel );
 
 
 parameter PIXEL_DISPLAY_BIT   = 9;
 
 input clock_25;
 input reset;
+input sync_reset;
 input [6:0] score;
 input number_pixel;
 input  [PIXEL_DISPLAY_BIT:0] X,Y;
@@ -25,36 +26,47 @@ always @ (posedge clock_25 or negedge reset) begin
       score_enable <= 1'b0;
       score_count <= 8'b00000000;
       selected_score_number <= 4'b0000;
+      Y_prev <=  10'd460;
+     
    end
+
 
    else if(Y< 460 || Y> 475) begin  //if you are not inside the number space, variables are initialize
         score_enable <= 1'b0;
-        score_count <= 8'b00000000;
         residual <= 4'b0000;
-        Y_prev <=  10'b0000000000;
-    end
+        Y_prev <=  10'd460;
+   end
 
    else begin
-         if(X >= 446 && X <= 455) begin //scrivo la decina
-            score_count <= X - 446 + 10*residual;
-            score_enable <= number_pixel;
-            selected_score_number <= dec;
-         end
+         if(X >= 445 && X <= 454) begin //scrivo la decina
+            if (sync_reset)
+               selected_score_number <= 4'b0000;
+            else
+               selected_score_number <= dec;
 
-         else if (X >= 458 && X <= 467) begin // scrivo l'unità
-            score_count <= X - 458 + 10*residual;
+            score_count <= (X - 445) + 10*residual;
             score_enable <= number_pixel;
-            selected_score_number <= unit;
+            end
+
+         else if (X >= 457 && X <= 466) begin // scrivo l'unitÃ 
+            if (sync_reset)
+               selected_score_number <= 4'b0000;
+            else 
+               selected_score_number <= unit;
+
+            score_count <= (X - 457) + 10*residual;
+            score_enable <= number_pixel;       
          end
          
          else if (Y > Y_prev) begin
             residual <= residual + 1'b1;
-            Y_prev <= Y_prev +1'b1;
+            Y_prev <= Y_prev + 1'b1;
          end
          
          else begin //default
             residual <= residual;
-            score_count <= score_count; 
+            score_count <= 8'b00000000; 
+            selected_score_number <= 4'b0000;
             score_enable <= 1'b0;  // the vga controller will print black in the midspace between the 2 numbers
          end
     end
@@ -70,6 +82,7 @@ always @ (posedge clock_25 or negedge reset) begin  //unit and decimal part assi
       score_prev <= 7'b0000000;
 	end
    else if(score > score_prev) begin
+      score_prev <= score;
       if (unit == 4'd9) begin
          unit <= 4'd0;
          if(dec == 4'd9)
@@ -81,8 +94,6 @@ always @ (posedge clock_25 or negedge reset) begin  //unit and decimal part assi
          unit <= unit + 1'b1;
          dec <= dec;  
       end
-
-      score_prev <= score;
    end
 
 end

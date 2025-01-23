@@ -3,7 +3,8 @@ Si definisce una griglia di gioco nel quale verrano collocati i blocchi del serp
 Ogni singola cella della griglia dimensinone 124x81 celle */
 
 
-module snake_game_fsm_for_test( collision_detected, right, left, up, down, right_sync, left_sync, right_register, left_register, current_state, next_state, clock_25, frame_tik, game_tik, reset, right_P, left_P, score,
+module snake_game_fsm_for_test( collision_detected, collision_fruit, fruit_eaten, right, left, up, down, right_sync, left_sync, right_register, left_register, current_state, next_state, clock_25, frame_tik, game_tik, start, game_over, reset, 
+sync_reset, right_P, left_P, score, left, right, up, down,
 					snake_head_x, snake_head_y, snake_body_x, body_count, snake_body_y, fruit_x, fruit_y, snake_length); 
 
 parameter SNAKE_LENGTH_BIT = 4;
@@ -26,55 +27,54 @@ parameter FRUIT_UPDATE = 3'b110;
 
 parameter BEGIN_SNAKE_HEAD_X = 7'd8;  // Posizione iniziale della testa del serpente (centrato sulla griglia)
 parameter BEGIN_SNAKE_HEAD_Y = 7'd40;    // Posizione centrata nella griglia di 124x81
-parameter BEGIN_SNAKE_LENGTH = 14'd6;     // Lunghezza iniziale del serpente (ad esempio, 6 segmenti)
-parameter BEGIN_FRUIT_X = 7'd8;       // Posizione iniziale del frutto (randomizzata o predefinita)
-parameter BEGIN_FRUIT_Y = 7'd42;
+parameter BEGIN_SNAKE_LENGTH = 4'd6;     // Lunghezza iniziale del serpente (ad esempio, 6 segmenti)
+parameter BEGIN_FRUIT_X = 7'd9;       // Posizione iniziale del frutto (randomizzata o predefinita)
+parameter BEGIN_FRUIT_Y = 7'd40;
 
 
     input clock_25;                                                 // Clock di sistema
     input game_tik, frame_tik;                                      // tik a 30Hz in uscia da un divisore con ingresso il frame_tik
     input reset;                                                    // Reset del gioco per riportare il gioco a stato iniziale
     input left_P, right_P;                                          // Comandi di movimento
+    output start, game_over;                                        // this bit comunicate if the game is going or there is a gameover
+    output sync_reset;                                              //syncronus reset
+    output left, right, up, down;                                    // direzioni effettive dello snake
     output [6:0] snake_head_x, snake_head_y;                         // Posizione della testa del serpente (range 0-123 per x, 0-80 per y)
     output [6:0] snake_body_x;                                      // Posizioni del corpo del serpente (massimo 16 segmenti)
     output [6:0] snake_body_y;                                       // Posizioni del corpo del serpente (massimo 16 segmenti)
     output [6:0] fruit_x, fruit_y;      							   // Posizione del frutto (randomica)
-    output right, left, up, down;                                      //direzione del serpente
     output [SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
     output reg [SNAKE_LENGTH_BIT-1:0] body_count;                   //counter per inviare il corpo dello snake
-    output reg [7:0] score;                                           // Punteggio corrente del gioco
-
-//DA RIMUOVERE QUESTI OUTPUT LASCIANDO SOLO IL REG, farlo anche sopra nel module
-output  right_sync, left_sync, right_register, left_register;
-output  [2:0] current_state; 
-output  [2:0] next_state;
-output collision_detected;
+																					//bit di abilitzione al movimento dello snake
+    output reg [6:0] score;                                           // Punteggio corrente del gioco
 
 
- reg [2:0] current_state; 
-reg [2:0] next_state;
+
+output reg [2:0] current_state; 
+output reg [2:0] next_state;
 
 
 // registri di posizione e wire
 
 reg [6:0] snake_head_x, snake_head_y, snake_body_x, snake_body_y;
-reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-1];        
-reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-1];        
+reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-2];        
+reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-2];        
 reg [SNAKE_LENGTH_BIT-1:0] snake_length;               
 reg [6:0] fruit_x, fruit_y;
 reg up, down, left, right;
-reg right_sync, left_sync;
-reg right_register, left_register;
+
+output reg right_sync, left_sync;
+output reg right_register, left_register;
 reg [1:0]right_shifter, left_shifter;
 
 wire [6:0] new_position_x, new_position_y;
-wire fruit_eaten;
+output fruit_eaten;
 
-reg collision_fruit, collision_detected;
+output reg collision_fruit, collision_detected;
 
 //definisco reg della rete combinatoria di uscita
 
-reg en_move, en_fruit, sync_reset;
+reg en_move, en_fruit, generate_fruit, start, game_over, sync_reset;
 
 
 // Indice per ciclo for
@@ -134,10 +134,10 @@ always @(current_state, left_sync, right_sync, game_tik, collision_detected, fru
         end
 
         EATEN_FRUIT: begin
-            if(collision_fruit)
+            //if(collision_fruit)
                 next_state = FRUIT_UPDATE;        // se ho collsione di generazione continua ad aggiornare posizione frutto
-            else
-                next_state = WAIT;
+            //else
+               // next_state = WAIT;
         end
 
         FRUIT_UPDATE: begin
@@ -171,6 +171,9 @@ always @(current_state)
             en_move = 1'b0;
             sync_reset= 1'b0;
             en_fruit = 1'b0;
+            generate_fruit= 1'b0;
+            start = 1'b1;
+            game_over =1'b0;
              
             
         end
@@ -178,46 +181,67 @@ always @(current_state)
         EATEN_FRUIT: begin
             en_move = 1'b0;
             sync_reset= 1'b0;
-            en_fruit = 1'b1; 
+            en_fruit = 1'b1;
+            generate_fruit = 1'b0; 
+            start = 1'b1;
+            game_over =1'b0;
              
         end
 
         FRUIT_UPDATE: begin
             en_move = 1'b0;
             sync_reset= 1'b0;
-            en_fruit = 1'b1;
+            en_fruit = 1'b0;
+            generate_fruit =1'b1; 
+            start = 1'b1;
+            game_over =1'b0;
          
         end
         
         COLLISION: begin
-            // Imposta il segnale di fine gioco (game over), Il gioco e' finito
+            // Imposta il segnale di fine gioco (game over)
+            // Il gioco e finito
             en_move = 1'b0;
             sync_reset= 1'b1;
             en_fruit = 1'b0; 
+            generate_fruit = 1'b0; 
+            start = 1'b0;
+            game_over =1'b1;
         end
 
         MOVING: begin
-            en_move = 1'b0;
-            sync_reset= 1'b0;
-            en_fruit = 1'b0;
-        end
-
-        MOVE_DONE: begin
             en_move = 1'b1;
             sync_reset= 1'b0;
             en_fruit = 1'b0;
+            generate_fruit = 1'b0; 
+            start = 1'b1;
+            game_over =1'b0;
+        end
+
+        MOVE_DONE: begin
+            en_move = 1'b0;
+            sync_reset= 1'b0;
+            en_fruit = 1'b0;
+            generate_fruit = 1'b0; 
+            start = 1'b1;
+            game_over =1'b0;
         end
 
         IDLE: begin
             en_move = 1'b0;
             sync_reset =1'b1;
             en_fruit = 1'b0;
+            generate_fruit = 1'b0; 
+            start = 1'b0;
+            game_over =1'b0;
         end
 			
 		default begin
-				en_move = 1'b0;
+			en_move = 1'b0;
             sync_reset =1'b1;
             en_fruit = 1'b0;
+            start = 1'b0;
+            game_over =1'b0;
 		end
 
 
@@ -231,9 +255,9 @@ always @(current_state)
 			body_count <= 0;
 			
 		else if (sync_reset) begin
-			if( body_count == SNAKE_LENGTH_MAX-1)
+			if( body_count == SNAKE_LENGTH_MAX-2)
 				body_count <= body_count;
-        else
+            else
             body_count <= body_count + 1'b1;
 				
 		snake_body_x <= snake_body_x_reg[body_count];
@@ -242,10 +266,10 @@ always @(current_state)
 		
 		else begin
 			 if (en_move==1'b1) begin 
-            body_count<=0;
+                body_count<=0;
 			end
       
-			else if(frame_tik==1'b0 || body_count == SNAKE_LENGTH_MAX-1)
+			else if(frame_tik==1'b0 || body_count == SNAKE_LENGTH_MAX-2)
 				body_count <= body_count;
         else
             body_count <= body_count + 1'b1;
@@ -255,20 +279,21 @@ always @(current_state)
 		end
 	end
 
-always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si effettua si va in IDLE E QUINDI sync_reset  attivo
+always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si effettua si va in IDLE E QUINDI sync_reset e attivo
 
     if(sync_reset ) begin //INIZIALIZZAZIONE
 
         snake_head_x <= BEGIN_SNAKE_HEAD_X;    // Posizione iniziale della testa del serpente (centrato sulla griglia)
         snake_head_y <= BEGIN_SNAKE_HEAD_Y;    // Posizione centrata nella griglia di 124x81
-        snake_length <= BEGIN_SNAKE_LENGTH;        // Lunghezza iniziale del serpente (ad esempio, 4 segmenti)
+        snake_length <= BEGIN_SNAKE_LENGTH;        // Lunghezza iniziale del serpente (ad esempio, 6 segmenti)
         fruit_x <= BEGIN_FRUIT_X;         // Posizione iniziale del frutto (randomizzata o predefinita)
         fruit_y <= BEGIN_FRUIT_Y;
-        score <= 8'd0;            // Punteggio iniziale del gioco   
-        for (i=0; i< SNAKE_LENGTH_MAX ;i=i+1) begin
 		  
-            if (i < BEGIN_SNAKE_LENGTH-1) begin
-                snake_body_x_reg[i] <= BEGIN_SNAKE_HEAD_X-1'b1-i;
+        score <= 7'd0;            // Punteggio iniziale del gioco   
+        for (i=0; i<= SNAKE_LENGTH_MAX-2 ;i=i+1) begin
+		  
+            if (i < BEGIN_SNAKE_LENGTH-1'b1) begin
+                snake_body_x_reg[i] <= BEGIN_SNAKE_HEAD_X-i-1'b1;
                 snake_body_y_reg[i] <= BEGIN_SNAKE_HEAD_Y;
 					 end
             else begin
@@ -279,7 +304,7 @@ always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si
 
     end
 
-    else if(en_move==1'b1 && collision_detected== 1'b0) begin
+    else if(en_move==1'b1 && game_over== 1'b0) begin
         // Aggiorna la posizione della testa del serpente in base agli input
             if (up) begin
                 if (snake_head_y > 0) begin
@@ -309,7 +334,6 @@ always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si
                 end
             end
             
-      
             //Aggiornamento del corpo del serpente 
 				
 				// Il primo segmento del corpo segue la testa del serpente
@@ -317,7 +341,7 @@ always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si
             snake_body_y_reg[0] <= snake_head_y; 
 
             // Lo spostamento del corpo avviene spostando ogni segmento verso la posizione del segmento precedente
-            for (i =1; i <SNAKE_LENGTH_MAX ; i = i + 1) begin
+            for (i =1; i <SNAKE_LENGTH_MAX-1 ; i = i + 1) begin
             // Sposta ogni segmento del corpo alla posizione del segmento precedente
 				
             if(i< snake_length-1)begin
@@ -328,22 +352,32 @@ always @ (posedge clock_25) begin //il reset non  inserito dato che quando lo si
 					snake_body_x_reg[i] <= snake_body_x_reg[i];
 					snake_body_y_reg[i] <= snake_body_y_reg[i];
             end
-				
-				end
- 
+        end		
     end 
 
     else if(en_fruit) begin
-
-            // Incrementa il punteggio quando il serpente mangia un frutto
+        fruit_x <= new_position_x;
+        fruit_y <= new_position_y;
+         // Incrementa il punteggio quando il serpente mangia un frutto
+        if(score == 7'd99)
+            score <= 7'd0;      
+        else
             score <= score + 1'b1; 
-            // Aumenta la lunghezza del serpente
+
+        // Aumenta la lunghezza del serpente
+        if(snake_length == SNAKE_LENGTH_MAX) 
+            snake_length <= snake_length;
+        else
             snake_length <= snake_length + 1'b1;
-
-            fruit_x <= new_position_x;
-            fruit_y <= new_position_y;
-
     end
+    
+
+    else if(generate_fruit) begin
+            if(collision_fruit)begin
+                fruit_x <= new_position_x;
+                fruit_y <= new_position_y;
+				end
+	end
 
 end
 
@@ -357,39 +391,40 @@ assign fruit_eaten = (fruit_x==snake_head_x && fruit_y == snake_head_y) ? 1'b1 :
 PRBS random_sequence_x(
     .clock_25(clock_25),
 	 .reset(reset),
-    .seed(7'b0011100),
+    .initial_seed(7'b0011100),
     .rnd(new_position_x)
 );
 
 PRBS random_sequence_y(
     .clock_25(clock_25),
 	.reset(reset),
-    .seed(7'b0110000),
+    .initial_seed(7'b0110000),
     .rnd(new_position_y)
 );
 
-//controllo di una collisione del nuovo frutto con il corpo del serpente o fuori dal game_board
+//controllo di una collisione del nuovo frutto con il corpo del serpente o fuori dal game_area
 always @ (*)
 for (i=0; i <SNAKE_LENGTH_MAX -1  ; i=i+1) begin
     if((fruit_x == snake_head_x && fruit_y== snake_head_y) || (fruit_x == snake_body_x_reg[i] && fruit_y== snake_body_y_reg[i]))
         collision_fruit= 1'b1;
 
-    else if(fruit_x >= HORIZONTAL_CELLS_NUM || fruit_y >= VERTICAL_CELLS_NUM)
+    else if(fruit_x >= (HORIZONTAL_CELLS_NUM-1'b1) || fruit_y >= (VERTICAL_CELLS_NUM-1'b1))
         collision_fruit = 1'b1;
-    
+       
     else
         collision_fruit = 1'b0;    
 end
 
+
+
 //collision detector           
 integer j=0;
 always @ (snake_head_x or snake_head_y or left or right or down or up) begin
-	for (j = 0; j < snake_length; j = j + 1'b1) begin
+	for (j = 0; j < SNAKE_LENGTH_MAX-1 ; j = j + 1'b1) begin
         // Controlla se la testa del serpente e sulla stessa posizione di uno dei segmenti del corpo
     if (snake_head_x == snake_body_x_reg[j] && snake_head_y == snake_body_y_reg[j])
         collision_detected = 1'b1; // Se la testa del serpente sul corpo, collisione
     end
-	 
     // Verifica se la testa del serpente fuori dai bordi
     if ((snake_head_x == 0 && left==1) || (snake_head_x == (HORIZONTAL_CELLS_NUM-1'b1) &&  right==1 )||
          (snake_head_y == 0  && up==1) || (snake_head_y ==( VERTICAL_CELLS_NUM-1'b1) && down==1) )
@@ -402,8 +437,6 @@ always @ (snake_head_x or snake_head_y or left or right or down or up) begin
         collision_detected = 0; // Inizialmente, nessuna collisione      
 end
 
- 
- //rivlevatore di fronti del pulsante
 
  always @ (posedge clock_25 or negedge reset ) begin
 
@@ -413,9 +446,9 @@ end
     else begin
         right_shifter <= { right_shifter[0], right_P};
         if (right_shifter[0]==1'b1 && right_shifter[1]==1'b0) 
-            right_sync<=1'b1;
+            right_sync=1'b1;
         else
-            right_sync<=1'b0;       
+            right_sync=1'b0;       
     end
     
 end
@@ -474,6 +507,13 @@ end
 always @ (posedge clock_25 or negedge reset) begin 
 
     if (~reset) begin
+        down <= 1'b0;
+        up <= 1'b0;
+        right <= 1'b1; //il gioco inizia che il serpente si muove verso destra
+        left <= 1'b0;
+    end
+	 
+	 else if (sync_reset) begin
         down <= 1'b0;
         up <= 1'b0;
         right <= 1'b1; //il gioco inizia che il serpente si muove verso destra

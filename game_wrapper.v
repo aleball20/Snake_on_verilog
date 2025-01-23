@@ -107,7 +107,10 @@ snake_game_fsm my_snake_game_fsm (
     .up(up),
     .down(down),
     .left(left),
-    .right(right)
+    .right(right),
+    .start(start),
+    .game_over(game_over),
+    .sync_reset(sync_reset)
 );
 
 vga_controller my_vga_controller(
@@ -170,25 +173,28 @@ score_controller my_score_controller(
     .Y(Y), 
     .selected_score_number(selected_score_number), 
     .score_count(score_count), 
-    .number_pixel(number_pixel)
+    .number_pixel(number_pixel),
+    .sync_reset(sync_reset)
 );
 
 time_controller my_time_controller(
-.clock_25(clock_25),
-.reset(reset),
-.time_tik(time_tik), 
-.number_pixel(number_pixel), 
-.selected_time_number(selected_time_number), 
-.time_enable(time_enable), 
-.time_count(time_count), 
-.X(X),
-.Y(Y)
+    .clock_25(clock_25),
+    .reset(reset),
+    .time_tik(time_tik), 
+    .number_pixel(number_pixel), 
+    .selected_time_number(selected_time_number), 
+    .time_enable(time_enable), 
+    .time_count(time_count), 
+    .X(X),
+    .Y(Y),
+    .sync_reset(sync_reset)
 );
 
 time_tik_divisor my_time_tik_divisor(
     .clock_25 (clock_25),
     .reset (reset), 
-    .time_tik(time_tik)
+    .time_tik(time_tik),
+    .start(start)
 );
 
 endmodule

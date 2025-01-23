@@ -1,6 +1,6 @@
 
 
-module wrapper_snake_game(body_count, collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, frame_tik, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
+module wrapper_snake_game(collision_fruit, fruit_eaten, start, game_over, body_count, collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, frame_tik, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
                             snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y);
 
 parameter PIXEL_DISPLAY_BIT = 9;
@@ -15,11 +15,11 @@ output [3:0] snake_length;
 output VGA_HS, VGA_VS;
 output frame_tik; 
 
-
+output collision_fruit, fruit_eaten, start, game_over;
 output game_tik;
 output display_area;
 output collision_detected;
-output [7:0] score;   
+output [6:0] score;   
 output [2:0] current_state, next_state;
 output right, left, up, down, right_sync, left_sync, right_register, left_register;
 output [SNAKE_LENGTH_BIT-1:0]body_count;
@@ -50,6 +50,10 @@ snake_game_fsm_for_test my_snake_game_fsm_for_test(
 	 .left_sync(left_sync),
 	 .right_register(right_register),
 	 .left_register(left_register),
+     .start(start),
+     .game_over(game_over),
+     .fruit_eaten(fruit_eaten),
+     .collision_fruit(collision_fruit),
     .next_state(next_state)
 );
 

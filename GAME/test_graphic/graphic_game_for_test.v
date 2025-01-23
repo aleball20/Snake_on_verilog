@@ -52,8 +52,8 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 
 //ricostruzione della matrice del bodysnake
 
-reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-1];        
-reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-1];  
+reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-2];        
+reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-2];  
 
 
 always @ (posedge clock_25) begin

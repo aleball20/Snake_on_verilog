@@ -54,7 +54,7 @@ else if (game_enable)
             end
         endcase
     
-    else if (score_time_enable) begin //green
+else if (score_time_enable) begin //green
             red<= 10'h800;
             green<=10'hf0f;
             blue<=10'h0;

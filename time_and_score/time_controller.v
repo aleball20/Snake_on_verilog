@@ -1,10 +1,11 @@
-module time_controller(clock_25, reset, time_tik, number_pixel, selected_time_number, time_enable, time_count, X, Y);
+module time_controller(clock_25, reset, sync_reset, time_tik, number_pixel, selected_time_number, time_enable, time_count, X, Y);
 
 
 parameter PIXEL_DISPLAY_BIT   = 9;
 
 input clock_25;
 input reset;
+input sync_reset;
 input time_tik;
 input number_pixel;
 input [PIXEL_DISPLAY_BIT:0] X,Y;
@@ -25,35 +26,48 @@ always @ (posedge clock_25 or negedge reset) begin
     if (~reset) begin                                  
        time_enable <= 1'b0;
        selected_time_number <= 4'b0000;
-       time_count <= 10'b000000000;
+       time_count <= 8'b00000000;
+       Y_prev <=  10'd460;
 
     end
- 
+
+
+
     else if(Y< 460 || Y> 475) begin  //if you are not inside the number space, variables are initialize
          time_enable <= 1'b0;
-         time_count <= 10'b0000000000;
          residual <= 4'b0000;
-
+         Y_prev <=  10'd460;
     end
 
     else begin 
-        if(X >=178 && X <= 187) begin //writes the cent
+        if(X >= 178 && X <= 187) begin //writes the cent
+            if(sync_reset)
+                selected_time_number <= 4'b0000;
+            else
             selected_time_number <= cent;
+
             time_count <= X - 178 + 10*residual;
             time_enable <= number_pixel;
-            Y_prev <=  10'b0000000000;
+            
         end
 
     
         else if (X >= 190 && X <= 199) begin //writes the dec
-            selected_time_number <= dec;
+            if(sync_reset)
+                selected_time_number <= 4'b0000;
+            else
+                selected_time_number <= dec;
+
             time_count <= X - 190 + 10*residual;
             time_enable <= number_pixel;
         end
 
     
         else if (X >= 201 && X <= 210) begin //writes the unit
-            selected_time_number <= unit;
+            if(sync_reset)
+                selected_time_number <= 4'b0000;
+            else
+                selected_time_number <= unit;
             time_count <= X - 201 + 10*residual;
             time_enable <= number_pixel;
         end
@@ -65,7 +79,8 @@ always @ (posedge clock_25 or negedge reset) begin
 
         else  begin //default
             residual <= residual;
-            time_count <= time_count;
+            selected_time_number <= 4'b0000;
+            time_count <= 8'b00000000;
             time_enable <= 1'b0;
         end
     end
@@ -82,7 +97,10 @@ end
             time_tik_prev <= 1'b0;
         end
      
-        else if(time_tik > time_tik_prev)begin 
+        else begin
+            time_tik_prev <= time_tik;
+            
+            if(time_tik > time_tik_prev)begin 
             if (unit == 4'd9) begin
                 unit <= 4'd0;
                 if (dec == 4'd9)begin
@@ -93,7 +111,7 @@ end
                         cent <= cent + 1'b1;
                     end      
                 else begin
-                    dec <= dec +1'b1;  
+                    dec <= dec + 1'b1;  
                     cent <= cent;
                 end
             end       
@@ -102,8 +120,8 @@ end
                     dec <= dec;  
                     cent<= cent;
                  end
+         end
             
-            time_tik_prev <= time_tik;
         end
     end
      

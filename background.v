@@ -22,9 +22,9 @@ reg datarom;
 /*define the game screen 620x405. It starts at the pixel X=58, Y=43 */ 
 
 assign rectangle_1 = (X > 52  && X < 683 && Y> 37 && Y < 43);     //on top
-assign rectangle_2 = (X > 52 && X < 58 && Y> 37 && Y < 447);      //on the left
+assign rectangle_2 = (X > 52 && X < 58 && Y> 37 && Y < 454);      //on the left
 assign rectangle_4 = (X > 52 && X < 683 && Y> 447 && Y < 454);    //on bottom
-assign rectangle_3 = (X > 677 && X < 683 && Y> 37 && Y < 447);     //on the right
+assign rectangle_3 = (X > 677 && X < 683 && Y> 37 && Y < 454);     //on the right
 
 assign game_rectangle = (rectangle_1 || rectangle_2 || rectangle_3 || rectangle_4) ? 1'b1 :1'b0;
 
