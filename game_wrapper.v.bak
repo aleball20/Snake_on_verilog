@@ -32,8 +32,6 @@ wire up, down, left, right;
 wire number_pixel;
 wire time_tik;
 wire score_time_enable, score_enable, time_enable ;
-wire sync_reset;
-wire start, game_over;
 wire [3:0] selected_score_number, selected_time_number, selected_number;
 wire [7:0] score_count, time_count, number_count;
 

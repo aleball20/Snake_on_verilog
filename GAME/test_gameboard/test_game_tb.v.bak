@@ -13,7 +13,6 @@ wire [6:0] snake_head_x_tb, snake_head_y_tb, snake_body_x_tb, snake_body_y_tb, f
 wire [3:0] snake_length_tb;
 wire[6:0] score_tb;
 wire VGA_HS_tb, VGA_VS_tb;
-wire sync_reset_tb;
 wire frame_tik_tb;
 wire game_tik_tb;
 wire collision_detected_tb;
@@ -22,7 +21,6 @@ wire display_area_tb;
 wire [PIXEL_DISPLAY_BIT:0] X_tb,Y_tb; 
 wire [2:0] next_state_tb, current_state_tb;
 wire collision_fruit_tb, fruit_eaten_tb, start_tb, game_over_tb;
-wire [3:0] body_count_tb;    
  
 
 wrapper_snake_game my_wrapper_snake_game(
@@ -56,9 +54,7 @@ wrapper_snake_game my_wrapper_snake_game(
 .left_register(left_register_tb),
 .collision_fruit(collision_fruit_tb),
 .fruit_eaten(fruit_eaten_tb),
-.sync_reset(sync_reset_tb),
 .start(start_tb),
-.body_count(body_count_tb),
 .game_over(game_over_tb),
 .X(X_tb),
 .Y(Y_tb)
@@ -93,7 +89,7 @@ initial begin
        #50
        right_P_tb =0;
 		#1000000000;
-        right_P_tb=1;
+        right_p_tb=1;
         #1000000;
 
 end

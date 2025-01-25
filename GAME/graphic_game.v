@@ -42,8 +42,8 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
 
     wire game_area; //playing game's area
    
-    assign game_area = (X>=58&& X<=677 && Y >= 43 && Y <= 447) ? 1'b1 : 1'b0;  
-
+    assign game_area = (X>=58&& X<=683 && Y >= 43 && Y <= 452) ? 1'b1 : 1'b0;  
+                                  //677                 //447
 
     
     //definisco contatori all'interno del blocco

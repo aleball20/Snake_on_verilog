@@ -14,7 +14,6 @@ output [6:0] snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fr
 output [3:0] snake_length;
 output VGA_HS, VGA_VS;
 output frame_tik; 
-output sync_reset;
 
 output collision_fruit, fruit_eaten, start, game_over;
 output game_tik;

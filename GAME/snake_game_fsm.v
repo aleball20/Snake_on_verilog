@@ -133,10 +133,9 @@ always @(current_state, left_sync, right_sync, game_tik, collision_detected, fru
         end
 
         EATEN_FRUIT: begin
-            //if(collision_fruit)
+          
                 next_state = FRUIT_UPDATE;        // se ho collsione di generazione continua ad aggiornare posizione frutto
-            //else
-                // next_state = WAIT;
+    
         end
 
         FRUIT_UPDATE: begin
@@ -201,7 +200,7 @@ always @(current_state)
             // Imposta il segnale di fine gioco (game over)
             // Il gioco e finito
             en_move = 1'b0;
-            sync_reset= 1'b1;
+            sync_reset= 1'b0;
             en_fruit = 1'b0; 
             generate_fruit = 1'b0; 
             start = 1'b0;
@@ -251,6 +250,9 @@ always @(current_state)
     
     always @ (posedge clock_25 or negedge reset) begin
         if (~reset)
+            body_count <= 0;
+        
+        else if(game_over)
             body_count <= 0;
             
         else if (sync_reset) begin

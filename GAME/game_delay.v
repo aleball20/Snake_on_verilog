@@ -48,13 +48,14 @@ always @ (posedge clock_25 or negedge reset ) begin
 
 if (~reset) begin
    shifter <= 2'b00;
+   game_tik <= 1'b0;
 end
 else begin
     shifter <= { shifter[0], divided_frame_tik};
     if (shifter[0]==1'b1 && shifter[1]==1'b0) 
-        game_tik=1'b1;
+        game_tik<=1'b1;
     else
-        game_tik=1'b0;       
+        game_tik<=1'b0;       
 end
 
 end
