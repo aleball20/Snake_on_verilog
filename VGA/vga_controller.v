@@ -1,8 +1,8 @@
 
 module vga_controller (display_area, reset, red, green, blue, datarom, clock_25, score_time_enable,
-                            game_enable, color_data);
+                            en_start_game, en_game_over, game_enable,  color_data);
 
-parameter PIXEL_DISPLAY_BIT   = 10;
+parameter PIXEL_DISPLAY_BIT = 10;
 parameter BLACK = 2'b00;
 parameter GREEN = 2'b01;
 parameter RED   = 2'b10;
@@ -10,6 +10,7 @@ parameter WHITE = 2'b11;
 
 output [PIXEL_DISPLAY_BIT-1'b1:0] red, green, blue;
 input reset, datarom, clock_25, score_time_enable, game_enable, display_area;
+input en_start_game, en_game_over;
 input [1:0] color_data;
 reg [PIXEL_DISPLAY_BIT-1'b1:0] red, green, blue;
 
@@ -29,6 +30,20 @@ else if (~display_area) begin
     green<=10'h000;
     blue<=10'h000;
 end
+
+else if (en_start_game) begin  //color blu
+    red<=10'h4a0;
+    green<=10'hd40;
+    blue<=10'hf60;
+end
+
+else if (en_game_over) begin  //color red
+    red<=10'hff0;
+    green<=10'h660;
+    blue<=10'h660;
+end
+
+
 else if (datarom) begin //white
     red<= 10'hfff;
     green<= 10'hfff;

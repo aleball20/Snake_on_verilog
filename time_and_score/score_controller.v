@@ -1,4 +1,4 @@
-module score_controller (clock_25, reset, sync_reset, score, score_enable , X,Y, selected_score_number, score_count, number_pixel );
+module score_controller (clock_25, reset, sync_reset, score, X,Y, selected_score_number, score_count, en_score );
 
 
 parameter PIXEL_DISPLAY_BIT   = 9;
@@ -7,12 +7,12 @@ input clock_25;
 input reset;
 input sync_reset;
 input [6:0] score;
-input number_pixel;
 input  [PIXEL_DISPLAY_BIT:0] X,Y;
 
-output reg score_enable;
+
 output reg [3:0] selected_score_number;
 output reg [7:0] score_count;
+output reg en_score;
 
 
 reg [PIXEL_DISPLAY_BIT:0] Y_prev;
@@ -23,37 +23,38 @@ reg [3:0]dec, unit;
 always @ (posedge clock_25 or negedge reset) begin
 
    if (~reset) begin
-      score_enable <= 1'b0;
+  
       score_count <= 8'b00000000;
       selected_score_number <= 4'b0000;
       Y_prev <=  10'd465; 
+      en_score <= 1'b0;
    end
 
    else if (sync_reset) begin
-      score_enable <= 1'b0;
       score_count <= 8'b00000000;
       selected_score_number <= 4'b0000;
-      Y_prev <=  10'd465;  
+      Y_prev <=  10'd465; 
+      en_score <= 1'b0; 
    end
 
 
    else if(Y<=465 || Y>=476) begin  //if you are not inside the number space, variables are initialize
-        score_enable <= 1'b0;
         residual <= 4'b0000;
         Y_prev <=  10'd466;
+        en_score <= 1'b0;
    end
 
    else begin
          if(X >= 445 && X <= 456) begin //scrivo la decina
             selected_score_number <= dec;
-            score_enable <= number_pixel;
+            en_score <= 1'b1;
             if(X<=454)
             score_count <= X - 445 + 10*residual;
             end
 
          else if (X >= 460 && X <= 471) begin // scrivo l'unitÃ 
             selected_score_number <= unit;
-            score_enable <= number_pixel;   
+            en_score <= 1'b1;
             if(X<=469)  
             score_count <= X - 460 + 10*residual;  
          end
@@ -64,10 +65,10 @@ always @ (posedge clock_25 or negedge reset) begin
          end
          
          else begin //default
+            en_score <= 1'b0;
             residual <= residual;
             score_count <= 8'b00000000; 
             selected_score_number <= 4'b0000;
-            score_enable <= 1'b0;  // the vga controller will print black in the midspace between the 2 numbers
          end
     end
    

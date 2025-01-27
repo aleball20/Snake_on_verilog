@@ -1,10 +1,11 @@
 
-module background (X,Y, clock_25, data,x_count, y_count, datarom);
+module background (reset, X,Y, clock_25, data,x_count, y_count, datarom);
 
 parameter PIXEL_DISPLAY_BIT = 9;
 
 input[PIXEL_DISPLAY_BIT:0] X, Y;
 input data, clock_25;
+input reset;
 output [7:0] x_count;
 output [3:0] y_count;
 output datarom; //values from ROM
@@ -28,16 +29,21 @@ assign rectangle_3 = (X > 672 && X < 658 && Y> 37 && Y < 449);     //on the righ
 
 assign game_rectangle = (rectangle_1 || rectangle_2 || rectangle_3 || rectangle_4) ? 1'b1 :1'b0;
 
-always @ (posedge clock_25) begin
-    if(Y< 460 || Y> 475) begin 
-     //lo schermo ritarda in teoria di 2 cicli di clock... verifica!!
-    //se dovesse avvenire si deve traslare i contatori di 3
+always @ (posedge clock_25 or negedge reset) begin
+
+    if(~reset) begin
+        datarom <= 1'b0;
+        y_count <= 4'b000;
+        x_count <= 8'b00000000;
+    end
+
+    else if(Y< 460 || Y> 475) begin 
        datarom <= game_rectangle;
        y_count<= 4'b00000;
        x_count<= 8'b00000000;
     end
     else begin
-        y_count <= Y- 460; //assegno a y_count i 15 valori possibili fino a 475
+        y_count <= Y- 460; //assegno a y_count i 16 valori possibili fino a 475
 		  
         if(X >=108 && X <= 170)begin //scrivo TIME:
             x_count <= X - 108;

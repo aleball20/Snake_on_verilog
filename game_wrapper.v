@@ -23,6 +23,7 @@ wire game_enable;
 wire [SNAKE_LENGTH_BIT-1:0] body_count;
 wire display_area;
 wire datarom;
+wire data_start_game, data_game_over;
 wire data;
 wire clock_25;
 wire [3:0] y_count;
@@ -31,16 +32,20 @@ wire [6:0] fruit_x, fruit_y;
 wire up, down, left, right;
 wire number_pixel;
 wire time_tik;
-wire score_time_enable, score_enable, time_enable ;
 wire sync_reset;
 wire start, game_over;
-wire read_enable;
+wire en_score, en_time;
 wire [3:0] selected_score_number, selected_time_number, selected_number;
 wire [7:0] score_count, time_count, number_count;
+wire [8:0] x_start_count;
+wire [6:0] y_start_count;
+wire [7:0] x_game_over_count;
+wire [4:0] y_game_over_count;
+wire en_start_game, en_game_over; //values from start_game or game_over
 
 assign selected_number = selected_score_number | selected_time_number;
 assign number_count = score_count | time_count;
-assign score_time_enable = score_enable | time_enable;
+
 assign VGA_BLANK=1'b1;
 assign VGA_SYNC= 1'b0;
 assign VGA_CLK= clock_25;
@@ -123,9 +128,11 @@ vga_controller my_vga_controller(
 .green(VGA_G),
 .blue(VGA_B),
 .datarom(datarom),
+.en_game_over(en_game_over),
+.en_start_game(en_start_game),
 .clock_25(clock_25),
 .game_enable(game_enable),
-.score_time_enable(score_time_enable),
+.score_time_enable(number_pixel & (en_time | en_score)),
 .color_data(color_data)
 );
 
@@ -146,6 +153,7 @@ background my_background(
     .Y(Y), 
     .clock_25(clock_25),
     .data(data),
+    .reset(reset),
     .x_count(x_count),
     .y_count(y_count),
     .datarom(datarom)
@@ -164,20 +172,18 @@ numbers my_numbers(
     .number_pixel(number_pixel),
     .clock_25(clock_25),
     .number_count(number_count),
-    .read_enable(read_enable),
     .selected_number (selected_number)
 );
 
 score_controller my_score_controller(
     .clock_25(clock_25),
     .reset(reset), 
-    .score(score), 
-    .score_enable(score_enable), 
+    .score(score),  
     .X(X),
     .Y(Y), 
+    .en_score(en_score),
     .selected_score_number(selected_score_number), 
     .score_count(score_count), 
-    .number_pixel(number_pixel),
     .sync_reset(sync_reset)
 );
 
@@ -185,11 +191,9 @@ time_controller my_time_controller(
     .clock_25(clock_25),
     .reset(reset),
     .time_tik(time_tik), 
-    .number_pixel(number_pixel), 
     .selected_time_number(selected_time_number), 
-    .time_enable(time_enable), 
     .time_count(time_count), 
-    .read_enable(read_enable),
+    .en_time(en_time),
     .X(X),
     .Y(Y),
     .sync_reset(sync_reset)
@@ -202,5 +206,36 @@ time_tik_divisor my_time_tik_divisor(
     .time_tik(time_tik),
     .start(start)
 );
+
+rom_game_over my_rom_game_over(
+    .x_count(x_game_over_count),
+    .y_count(y_game_over_count),
+    .data_game_over(data_game_over),
+    .clock_25(clock_25)
+    );
+
+rom_start_game my_start_game(
+    .x_count(x_start_count),
+    .y_count(y_start_count),
+    .data_start_game(data_start_game),
+    .clock_25(clock_25)
+    );
+
+start_game_over_printer my_start_game_over_printer(
+	.X(X),
+	.Y(Y),
+	.reset(reset),
+	.start(start),
+	.game_over(game_over),
+	.data_start_game(data_start_game),
+	.data_game_over(data_game_over),
+	.clock_25(clock_25),
+	.x_start_count(x_start_count),
+	.y_start_count(y_start_count),
+	.x_game_over_count(x_game_over_count),
+	.y_game_over_count(y_game_over_count),
+	.en_start_game(en_start_game),
+	.en_game_over(en_game_over)
+	);
 
 endmodule
