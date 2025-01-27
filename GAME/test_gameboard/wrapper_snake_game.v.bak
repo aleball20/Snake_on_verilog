@@ -4,7 +4,7 @@ module wrapper_snake_game(collision_fruit, sync_reset, fruit_eaten, start, game_
                             snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y);
 
 parameter PIXEL_DISPLAY_BIT = 9;
-parameter SNAKE_LENGTH_BIT = 4;									 
+parameter SNAKE_LENGTH_BIT = 6;									 
 
 input clock_25, reset;
 input right_P, left_P;

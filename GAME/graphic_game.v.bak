@@ -1,8 +1,8 @@
 module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, left, right, up, down, selected_symbol, snake_length, game_enable, color_data, selected_figure);
 
-    parameter PIXEL_DISPLAY_BIT = 9;
-    parameter SNAKE_LENGTH_BIT = 6;
-    parameter SNAKE_LENGTH_MAX =2**SNAKE_LENGTH_BIT;
+    parameter PIXEL_DISPLAY_BIT   = 9;
+    parameter SNAKE_LENGTH_BIT    = 4;
+    parameter SNAKE_LENGTH_MAX    =2**SNAKE_LENGTH_BIT;
 
     // Costanti per i tipi di figura
     parameter HEAD_RIGTH = 4'b0000;
@@ -42,8 +42,8 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
 
     wire game_area; //playing game's area
    
-    assign game_area = (X>=58&& X<=677 && Y >= 43 && Y <= 447) ? 1'b1 : 1'b0;  
-                                  //683                 //452
+    assign game_area = (X>=58&& X<=683 && Y >= 43 && Y <= 452) ? 1'b1 : 1'b0;  
+                                  //677                 //447
 
     
     //definisco contatori all'interno del blocco
@@ -52,10 +52,11 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
 
 
 //ricostruzione della matrice del bodysnake. Questa deve essere un ciclo di clock in ritardo rispetto al invio del 
-//a quando ÃƒÂ¨ stata inviata
+//a quando è stata inviata
 
 reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-2];        
-reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-2]; 
+reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-2];  
+
 
 
     // Calcola le coordinate relative al blocco
@@ -63,7 +64,7 @@ always @ (posedge clock_25) begin
 
     snake_body_x_reg[body_count] <= snake_body_x;
     snake_body_y_reg[body_count] <= snake_body_y;
-end   
+end    
 
 
     always @(posedge clock_25) begin                

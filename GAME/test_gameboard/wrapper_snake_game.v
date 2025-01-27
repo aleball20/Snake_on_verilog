@@ -1,17 +1,17 @@
 
 
-module wrapper_snake_game(collision_fruit, sync_reset, fruit_eaten, start, game_over, body_count, collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, frame_tik, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
+module wrapper_snake_game(time_tik, time_enable, selected_time_number, time_count, number_pixel, collision_fruit, sync_reset, fruit_eaten, start, game_over, body_count, collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, frame_tik, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
                             snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y);
 
 parameter PIXEL_DISPLAY_BIT = 9;
-parameter SNAKE_LENGTH_BIT = 4;									 
+parameter SNAKE_LENGTH_BIT = 6;									 
 
 input clock_25, reset;
 input right_P, left_P;
 
 output[PIXEL_DISPLAY_BIT:0] X,Y; 
 output [6:0] snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y;
-output [3:0] snake_length;
+output [SNAKE_LENGTH_BIT-1:0] snake_length;
 output VGA_HS, VGA_VS;
 output frame_tik; 
 output sync_reset;
@@ -24,6 +24,12 @@ output [6:0] score;
 output [2:0] current_state, next_state;
 output right, left, up, down, right_sync, left_sync, right_register, left_register;
 output [SNAKE_LENGTH_BIT-1:0]body_count;
+
+output number_pixel;
+output time_enable;
+output [3:0] selected_time_number;
+output [7:0] time_count;
+output time_tik;
 
 snake_game_fsm_for_test my_snake_game_fsm_for_test(
     .clock_25(clock_25),
@@ -77,6 +83,33 @@ game_delay my_game_delay(
     .frame_tik(frame_tik),
     .game_tik(game_tik)
 );
+ 
+time_controller my_time_controller(
+    .clock_25(clock_25),
+    .reset(reset),
+    .sync_reset(sync_reset), 
+    .time_tik(time_tik), 
+    .time_enable(time_enable), 
+    .X(X),
+    .Y(Y), 
+    .selected_time_number(selected_time_number), 
+    .time_count(time_count), 
+    .number_pixel(number_pixel)
+);
 
+numbers my_numbers(
+    .clock_25(clock_25),
+    .selected_number(selected_time_number),   //Tramite selective decido quale numero prelevare dalla ROM
+    .number_count(time_count),              
+    .number_pixel(number_pixel)
+);
+
+time_tik_divisor my_time_tik_divisor(
+    .clock_25(clock_25),
+    .sync_reset(sync_reset),
+    .start(start),
+    .reset(reset),
+    .time_tik(time_tik)
+    ); 
 
 endmodule

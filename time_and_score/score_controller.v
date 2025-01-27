@@ -26,36 +26,36 @@ always @ (posedge clock_25 or negedge reset) begin
       score_enable <= 1'b0;
       score_count <= 8'b00000000;
       selected_score_number <= 4'b0000;
-      Y_prev <=  10'd460;
-     
+      Y_prev <=  10'd465; 
+   end
+
+   else if (sync_reset) begin
+      score_enable <= 1'b0;
+      score_count <= 8'b00000000;
+      selected_score_number <= 4'b0000;
+      Y_prev <=  10'd465;  
    end
 
 
-   else if(Y< 460 || Y> 475) begin  //if you are not inside the number space, variables are initialize
+   else if(Y< 465 || Y> 476) begin  //if you are not inside the number space, variables are initialize
         score_enable <= 1'b0;
         residual <= 4'b0000;
-        Y_prev <=  10'd460;
+        Y_prev <=  10'd465;
    end
 
    else begin
-         if(X >= 445 && X <= 454) begin //scrivo la decina
-            if (sync_reset)
-               selected_score_number <= 4'b0000;
-            else
-               selected_score_number <= dec;
-
-            score_count <= (X - 445) + 10*residual;
+         if(X >= 445 && X <= 457) begin //scrivo la decina
+            selected_score_number <= dec;
             score_enable <= number_pixel;
+            if(X<=455)
+            score_count <= (X - 445) + 10*residual;
             end
 
-         else if (X >= 457 && X <= 466) begin // scrivo l'unitÃ 
-            if (sync_reset)
-               selected_score_number <= 4'b0000;
-            else 
-               selected_score_number <= unit;
-
-            score_count <= (X - 457) + 10*residual;
-            score_enable <= number_pixel;       
+         else if (X >= 460 && X <= 471) begin // scrivo l'unitÃ 
+            selected_score_number <= unit;
+            score_enable <= number_pixel;   
+            if(X<=469)  
+            score_count <= (X - 460) + 10*residual;  
          end
          
          else if (Y > Y_prev) begin
@@ -81,6 +81,14 @@ always @ (posedge clock_25 or negedge reset) begin  //unit and decimal part assi
       unit <= 4'b000;
       score_prev <= 7'b0000000;
 	end
+
+   
+   else if(sync_reset) begin
+      dec <= 4'b0000;
+      unit <= 4'b000;
+      score_prev <= 7'b0000000;
+	end
+
    else if(score > score_prev) begin
       score_prev <= score;
       if (unit == 4'd9) begin

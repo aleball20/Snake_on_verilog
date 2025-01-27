@@ -29,6 +29,11 @@ else if (~display_area) begin
     green<=10'h000;
     blue<=10'h000;
 end
+else if (datarom) begin //white
+    red<= 10'hfff;
+    green<= 10'hfff;
+    blue<=10'hfff;
+end 
 else if (game_enable)
         
         case (color_data)
@@ -60,16 +65,11 @@ else if (score_time_enable) begin //green
             blue<=10'h0;
     end
 
-    else if (datarom) begin //white
-            red<= 10'hfff;
-            green<= 10'hfff;
-            blue<=10'hfff;
-    end 
 
-    else begin //black
-                red<=10'h000;
-                green<= 10'h000;
-                blue<= 10'h000;
+else begin //black
+            red<=10'h000;
+            green<= 10'h000;
+            blue<= 10'h000;
         end
 
 

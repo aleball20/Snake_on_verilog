@@ -54,13 +54,33 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 
 reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-2];        
 reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-2];  
+reg tail_assignmet;
 
 
 always @ (posedge clock_25) begin
+    if (body_count ==0) begin
+        snake_body_x_reg[body_count] <= snake_body_x;
+        snake_body_y_reg[body_count] <= snake_body_y;
+        tail_assignment <= 0;
+    end
+    else if (body_count < SNAKE_LENGTH_MAX -2 -1) begin
+        snake_body_x_reg[body_count-1] <= snake_body_x;
+        snake_body_y_reg[body_count-1] <= snake_body_y;
+        tail_assigment <= 0;
+    end
+    else if(body_count == SNAKE_LENGTH_MAX -2 && tail_assignment == 1'b0) begin
+        snake_body_x_reg[body_count-1] <= snake_body_x;
+        snake_body_y_reg[body_count-1] <= snake_body_y;
+        tail_assigment <= 1;
+    end
+    else if (body_count == SNAKE_LENGTH_MAX -2 && tail_assignment == 1'b1) begin
+        snake_body_x_reg[body_count] <= snake_body_x;
+        snake_body_y_reg[body_count] <= snake_body_y;
+        tail_assigment <= 1;
+    end  
+end   
 
-    snake_body_x_reg[body_count] <= snake_body_x;
-    snake_body_y_reg[body_count] <= snake_body_y;
-end    
+
 
 
     // Calcola le coordinate relative al blocco

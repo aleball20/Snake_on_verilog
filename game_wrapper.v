@@ -1,7 +1,7 @@
 module game_wrapper (CLOCK_50, KEY0, KEY2, KEY3, VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK, VGA_R, VGA_G, VGA_B);
 
 parameter PIXEL_DISPLAY_BIT = 10;
-parameter SNAKE_LENGTH_BIT = 4;
+parameter SNAKE_LENGTH_BIT = 6;
 
 
 input CLOCK_50, KEY0, KEY2, KEY3;
@@ -34,6 +34,7 @@ wire time_tik;
 wire score_time_enable, score_enable, time_enable ;
 wire sync_reset;
 wire start, game_over;
+wire read_enable;
 wire [3:0] selected_score_number, selected_time_number, selected_number;
 wire [7:0] score_count, time_count, number_count;
 
@@ -163,6 +164,7 @@ numbers my_numbers(
     .number_pixel(number_pixel),
     .clock_25(clock_25),
     .number_count(number_count),
+    .read_enable(read_enable),
     .selected_number (selected_number)
 );
 
@@ -187,6 +189,7 @@ time_controller my_time_controller(
     .selected_time_number(selected_time_number), 
     .time_enable(time_enable), 
     .time_count(time_count), 
+    .read_enable(read_enable),
     .X(X),
     .Y(Y),
     .sync_reset(sync_reset)
@@ -195,6 +198,7 @@ time_controller my_time_controller(
 time_tik_divisor my_time_tik_divisor(
     .clock_25 (clock_25),
     .reset (reset), 
+	 .sync_reset(sync_reset),
     .time_tik(time_tik),
     .start(start)
 );
