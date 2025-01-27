@@ -1,4 +1,4 @@
-module time_controller(clock_25, reset, sync_reset, read_enable, time_tik, number_pixel, selected_time_number, time_enable, time_count, X, Y);
+module time_controller(clock_25, reset, sync_reset, time_tik, number_pixel, selected_time_number, time_enable, time_count, X, Y);
 
 
 parameter PIXEL_DISPLAY_BIT   = 9;
@@ -13,7 +13,6 @@ input [PIXEL_DISPLAY_BIT:0] X,Y;
 output reg [3:0] selected_time_number;
 output reg time_enable;
 output reg [7:0] time_count;
-output reg read_enable;
 
 
 reg [3:0] cent, dec, unit;
@@ -29,30 +28,26 @@ always @ (posedge clock_25 or negedge reset) begin
        selected_time_number <= 4'b0000;
        time_count <= 8'b00000000;
        Y_prev <=  10'd465;
-       read_enable <= 1'b0;
     end
 
     else if (sync_reset) begin
         time_enable <= 1'b0;
         time_count <= 8'b00000000;
         selected_time_number <= 4'b0000;
-        Y_prev <=  10'd465; 
-        read_enable <= 1'b0; 
+        Y_prev <=  10'd466; 
      end
 
 
 
-    else if(Y< 465 || Y> 476) begin  //if you are not inside the number space, variables are initialize
+    else if(Y<= 465 || Y>=476) begin  //if you are not inside the number space, variables are initialize
          time_enable <= 1'b0;
          residual <= 4'b0000;
-         Y_prev <=  10'd465;
-         read_enable <= 1'b0;
+         Y_prev <=  10'd466;
     end
 
 //time_enable is delayed of 2 colcks cycle, therefore the time_count can be incremented until 2 varibles before
     else begin 
         if(X >= 179 && X <= 190) begin //writes the cent
-            read_enable <= 1'b1;
             selected_time_number <= cent;
             time_enable <= number_pixel;
             if(X <=188)
@@ -62,7 +57,6 @@ always @ (posedge clock_25 or negedge reset) begin
 
     
         else if (X >= 193 && X <= 204) begin //writes the dec
-            read_enable <= 1'b1;
             selected_time_number <= dec;
             time_enable <= number_pixel;
             if(X <= 202)
@@ -72,7 +66,6 @@ always @ (posedge clock_25 or negedge reset) begin
 
     
         else if (X >= 207 && X <= 218) begin //writes the unit
-            read_enable <= 1'b1;
             selected_time_number <= unit;
             time_enable <= number_pixel;
             if(X <=216)
@@ -86,7 +79,6 @@ always @ (posedge clock_25 or negedge reset) begin
         end
 
         else  begin //default
-            read_enable <= 1'b1;
             residual <= residual;
             selected_time_number <= 4'b0000;
             time_count <= 8'b00000000;

@@ -37,25 +37,25 @@ always @ (posedge clock_25 or negedge reset) begin
    end
 
 
-   else if(Y< 465 || Y> 476) begin  //if you are not inside the number space, variables are initialize
+   else if(Y<=465 || Y>=476) begin  //if you are not inside the number space, variables are initialize
         score_enable <= 1'b0;
         residual <= 4'b0000;
-        Y_prev <=  10'd465;
+        Y_prev <=  10'd466;
    end
 
    else begin
-         if(X >= 445 && X <= 457) begin //scrivo la decina
+         if(X >= 445 && X <= 456) begin //scrivo la decina
             selected_score_number <= dec;
             score_enable <= number_pixel;
-            if(X<=455)
-            score_count <= (X - 445) + 10*residual;
+            if(X<=454)
+            score_count <= X - 445 + 10*residual;
             end
 
          else if (X >= 460 && X <= 471) begin // scrivo l'unitÃ 
             selected_score_number <= unit;
             score_enable <= number_pixel;   
             if(X<=469)  
-            score_count <= (X - 460) + 10*residual;  
+            score_count <= X - 460 + 10*residual;  
          end
          
          else if (Y > Y_prev) begin

@@ -1,6 +1,6 @@
 
 
-module wrapper_snake_game(time_tik, time_enable, selected_time_number, time_count, number_pixel, collision_fruit, sync_reset, fruit_eaten, start, game_over, body_count, collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, frame_tik, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
+module wrapper_snake_game(score_count, selected_score_number, score_enable, time_tik, time_enable, selected_time_number, time_count, number_pixel, collision_fruit, sync_reset, fruit_eaten, start, game_over, body_count, collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, frame_tik, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
                             snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y);
 
 parameter PIXEL_DISPLAY_BIT = 9;
@@ -26,9 +26,9 @@ output right, left, up, down, right_sync, left_sync, right_register, left_regist
 output [SNAKE_LENGTH_BIT-1:0]body_count;
 
 output number_pixel;
-output time_enable;
-output [3:0] selected_time_number;
-output [7:0] time_count;
+output time_enable, score_enable;
+output [3:0] selected_time_number, selected_score_number;
+output [7:0] time_count, score_count;
 output time_tik;
 
 snake_game_fsm_for_test my_snake_game_fsm_for_test(
@@ -99,8 +99,8 @@ time_controller my_time_controller(
 
 numbers my_numbers(
     .clock_25(clock_25),
-    .selected_number(selected_time_number),   //Tramite selective decido quale numero prelevare dalla ROM
-    .number_count(time_count),              
+    .selected_number(selected_time_number | selected_score_number),   //Tramite selective decido quale numero prelevare dalla ROM
+    .number_count(time_count | score_count),              
     .number_pixel(number_pixel)
 );
 
@@ -112,4 +112,17 @@ time_tik_divisor my_time_tik_divisor(
     .time_tik(time_tik)
     ); 
 
+
+score_controller my_score_controller(
+    .clock_25(clock_25),
+    .reset (reset), 
+    .sync_reset(sync_reset), 
+    .score (score), 
+    .score_enable (score_enable), 
+    .X (X),
+    .Y (Y), 
+    .selected_score_number (selected_score_number), 
+    .score_count (score_count), 
+    .number_pixel (number_pixel)
+);
 endmodule

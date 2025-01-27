@@ -16,7 +16,7 @@ reg [dimension-1:0] out=0;
 always @ (posedge clock_25, negedge reset) begin
     if(~reset)
         out <=0;
-	else if ( sync_reset)
+	else if ( sync_reset || ~start )
 		out <= 0;
     else if(out==(2**dimension)-1)
 		out <=0;
@@ -25,6 +25,6 @@ always @ (posedge clock_25, negedge reset) begin
 	
 end
 
-assign time_tik =(start==1)? out[dimension-1] : 1'b0;
+assign time_tik =out[dimension-1];
 
 endmodule

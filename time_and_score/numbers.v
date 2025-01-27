@@ -1,11 +1,10 @@
-module numbers (number_pixel, read_enable, clock_25, number_count, selected_number);
+module numbers (number_pixel, clock_25, number_count, selected_number);
 
 /*per permettere la lettura dei numeri, le celle sono di dimensione 10x10 pixel. Quindi ogni quadrato ha 100 bit.
 di conseguenza ogni figura Ã¨ rappresentata con 200 bit (2 per ogni pixel). La lettura avviene partendo  
 dalla coppie dei 2 MSB che rappresentano il pixel [1][1], per poi procedere leggendo il pixel successivo [2][1]
 e cosi via. In uscita si ha un vettore di 2 bit raffigurante il colore del pixel selezionato */
 input clock_25;
-input read_enable;
 input [3:0] selected_number;   //Tramite selective decido quale numero prelevare dalla ROM
 input [7:0]number_count;              
 output number_pixel;
@@ -41,9 +40,6 @@ end
 
 always @ (posedge clock_25)
 	begin
-		if(read_enable == 1'b0)
-			s <= 1'b0;
-		else
 			s<= num[selected_number];
 	end
 
