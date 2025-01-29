@@ -26,7 +26,7 @@ wire collision_fruit_tb, fruit_eaten_tb, start_tb, game_over_tb;
 wire [SNAKE_LENGTH_BIT-1:0] body_count_tb;  
 
 wire number_pixel_tb;
-wire time_enable_tb, score_enable_tb;
+wire en_time_tb, en_score_tb;
 wire [3:0] selected_time_number_tb, selected_score_number_tb;
 wire [7:0] time_count_tb, score_count_tb;
 wire time_tik_tb;
@@ -67,13 +67,13 @@ wrapper_snake_game my_wrapper_snake_game(
 .body_count(body_count_tb),
 .game_over(game_over_tb),
 .number_pixel(number_pixel_tb),
-.time_enable(time_enable_tb),
+.en_time(en_time_tb),
 .selected_time_number(selected_time_number_tb),
 .time_count(time_count_tb),
 .time_tik(time_tik_tb),
 .X(X_tb),
 .Y(Y_tb),
-.score_enable (score_enable_tb),
+.en_score(en_score_tb),
 .selected_score_number (selected_score_number_tb), 
 .score_count (score_count_tb)
 );
@@ -99,7 +99,7 @@ initial begin
 	  #50
 	  right_P_tb =0;
 	  #100000000;
-	    #1000000000;
+	   #1000000000;
     right_P_tb=1;
         #1000000;
 

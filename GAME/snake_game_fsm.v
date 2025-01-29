@@ -27,8 +27,8 @@ parameter  RESET_IDLE = 3'B111;
 parameter BEGIN_SNAKE_HEAD_X = 7'd8;  // Posizione iniziale della testa del serpente (centrato sulla griglia)
 parameter BEGIN_SNAKE_HEAD_Y = 7'd40;    // Posizione centrata nella griglia di 124x81
 parameter BEGIN_SNAKE_LENGTH = 4'd6;     // Lunghezza iniziale del serpente (ad esempio, 6 segmenti)
-parameter BEGIN_FRUIT_X = 7'd9;       // Posizione iniziale del frutto (randomizzata o predefinita)
-parameter BEGIN_FRUIT_Y = 7'd40;
+parameter BEGIN_FRUIT_X = 7'd18;       // Posizione iniziale del frutto (randomizzata o predefinita)
+parameter BEGIN_FRUIT_Y = 7'd50;
 
 
     input clock_25;                                                 // Clock di sistema
@@ -68,6 +68,8 @@ reg [1:0]right_shifter, left_shifter;
 
 wire [6:0] new_position_x, new_position_y;
 wire fruit_eaten;
+reg [SNAKE_LENGTH_MAX-1'b1:0] collision_vector;
+reg [SNAKE_LENGTH_MAX-1'b1:0] fruit_vector;
 
 reg collision_fruit, collision_detected;
 
@@ -79,9 +81,11 @@ reg en_move, en_fruit, generate_fruit, start, game_over, sync_reset, send;
 
 // Indice per ciclo for
 integer i; 
+integer j=0;
 
 
-    //registro di uscita della rete di Moore
+
+//registro di uscita della rete di Moore
 
 always @(posedge clock_25 or negedge reset)
 
@@ -445,37 +449,48 @@ PRBS random_sequence_y(
 );
 
 //controllo di una collisione del nuovo frutto con il corpo del serpente o fuori dal game_area
-always @ (*)
-for (i=0; i <SNAKE_LENGTH_MAX -1  ; i=i+1) begin
-    if((fruit_x == snake_head_x && fruit_y== snake_head_y) || (fruit_x == snake_body_x_reg[i] && fruit_y== snake_body_y_reg[i]))
-        collision_fruit= 1'b1;
+always @ (*) begin
 
-    else if(fruit_x >= (HORIZONTAL_CELLS_NUM-1'b1) || fruit_y >= (VERTICAL_CELLS_NUM-1'b1))
-        collision_fruit = 1'b1;
+for (i=0; i <SNAKE_LENGTH_MAX -1  ; i=i+1)begin
+    if (fruit_x == snake_body_x_reg[i] && fruit_y== snake_body_y_reg[i])
+        fruit_vector[i] = 1'b1;
+    else 
+        fruit_vector[i] = 1'b0;
+   end
+end
+
+always @ (*) begin
+    if((fruit_x == snake_head_x && fruit_y== snake_head_y) || fruit_vector > 0 || 
+                (fruit_x >= HORIZONTAL_CELLS_NUM-1'b1) || fruit_y >= (VERTICAL_CELLS_NUM-1'b1) || (fruit_x == 0) || (fruit_y==0))
+        collision_fruit= 1'b1;
         
     else
         collision_fruit = 1'b0;    
 end
 
 
-
 //collision detector           
-integer j=0;
+
 always @ (*) begin
-    for (j = 0; j < SNAKE_LENGTH_MAX-1 ; j = j + 1'b1) begin
+    for (j = 0; j < SNAKE_LENGTH_MAX-1'b1 ; j = j + 1'b1) begin
         // Controlla se la testa del serpente e sulla stessa posizione di uno dei segmenti del corpo
     if (snake_head_x == snake_body_x_reg[j] && snake_head_y == snake_body_y_reg[j])
-        collision_detected = 1'b1; // Se la testa del serpente sul corpo, collisione
+       collision_vector[j] = 1'b1; // Se la testa del serpente sul corpo, collisione
     else 
-        collision_detected = 1'b0;
+        collision_vector[j] = 1'b0;
     end
+end
+
+always @ (*) begin
     // Verifica se la testa del serpente fuori dai bordi
-    if ((snake_head_x == 0 && left==1) || (snake_head_x == (HORIZONTAL_CELLS_NUM-1'b1) &&  right==1 )||
-            (snake_head_y == 0  && up==1) || (snake_head_y ==( VERTICAL_CELLS_NUM-1'b1) && down==1) )
+    if (snake_head_x == 1 || snake_head_x == (HORIZONTAL_CELLS_NUM-1'b1) ||
+            snake_head_y == 1 || snake_head_y ==( VERTICAL_CELLS_NUM-1'b1))
 
         collision_detected = 1'b1;    // Se la testa  fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
-        
     
+    else if(collision_vector > 0)
+        collision_detected = 1'b1;
+
     else       // Verifica se la testa del serpente ha colpito se stessa (ossia una posizione gia occupata dal corpo)
         
         collision_detected = 0; // Inizialmente, nessuna collisione      

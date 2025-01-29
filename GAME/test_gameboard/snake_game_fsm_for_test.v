@@ -472,8 +472,8 @@ always @ (*) begin
         collision_detected = 1'b0;
     end
     // Verifica se la testa del serpente fuori dai bordi
-    if ((snake_head_x == 0 && left==1) || (snake_head_x == (HORIZONTAL_CELLS_NUM-1'b1) &&  right==1 )||
-            (snake_head_y == 0  && up==1) || (snake_head_y ==( VERTICAL_CELLS_NUM-1'b1) && down==1) )
+    if ((snake_head_x == 0) || (snake_head_x == HORIZONTAL_CELLS_NUM-1'b1)||
+            (snake_head_y == 0) || (snake_head_y == VERTICAL_CELLS_NUM-1'b1))
 
         collision_detected = 1'b1;    // Se la testa  fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
         

@@ -46,29 +46,36 @@ always @ (posedge clock_25 or negedge reset) begin
 
 //time_enable is delayed of 2 colcks cycle, therefore the time_count can be incremented until 2 varibles before
     else begin 
-        if(X >= 179 && X <= 190) begin //writes the cent
+        if(X >= 178 && X <= 190) begin //writes the cent
             selected_time_number <= cent;
-            en_time <= 1'b1;
-            if(X <=188)
+            if(X >178 && X <189) begin
                 time_count <= X - 179 + 10*residual;
-                
+                en_time <=1'b1;
+            end
+            else
+                en_time <= 1'b0;
         end
 
     
-        else if (X >= 193 && X <= 204) begin //writes the dec
+        else if (X >= 192 && X <= 204) begin //writes the dec
             selected_time_number <= dec;
-            en_time <= 1'b1;
-            if(X <= 202)
-                time_count <= X - 193 + 10*residual;   
-
+            if(X>192 && X < 203) begin
+                en_time <= 1'b1;
+                time_count <= X - 193 + 10*residual;
+				end
+            else 
+                en_time <= 1'b0;
         end
 
     
-        else if (X >= 207 && X <= 218) begin //writes the unit
+        else if (X >= 206 && X <= 218) begin //writes the unit
             selected_time_number <= unit;
-            en_time <= 1'b1;
-            if(X <=216)
+            if(X>206 && X <217) begin
+                en_time <= 1'b1;
                 time_count <= X - 207 + 10*residual;
+                end
+            else
+                en_time <= 1'b0;
                 
         end
 

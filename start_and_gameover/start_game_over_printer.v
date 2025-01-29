@@ -41,8 +41,8 @@ always @ (posedge clock_25 or negedge reset) begin
         else begin
             y_game_over_count <= Y-229 ; //assign the 23 possible values until 332
             
-            if(X >=228 && X <= 411)begin  
-                x_game_over_count <= X - 228;
+            if(X >=258 && X <= 471)begin    //228 a 258           e           441 a 471
+                x_game_over_count <= X - 258;       // 228 a 258
                 en_game_over <= data_game_over;
             end
             else begin 
@@ -62,8 +62,8 @@ always @ (posedge clock_25 or negedge reset) begin
         else begin
             y_start_count <= Y-207 ; //assign the 23 possible values until 332
             
-            if(X >=190 && X <= 449)begin  
-                x_start_count <= X - 190;
+            if(X >=220 && X <= 479)begin    // da 190 a 220             e da 449 a 479
+                x_start_count <= X - 220;      //190 a 220
                 en_start_game <= data_start_game;
             end
             else begin 

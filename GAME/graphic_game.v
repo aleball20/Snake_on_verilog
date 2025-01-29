@@ -18,8 +18,8 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
 
     parameter X_off = 58;      // posizione (0,0) all'interno del rettangolo di gioco
     parameter Y_off = 43; 
-    parameter X_fin = X_off + 124 * 5 -1;
-    parameter Y_fin = Y_off + 81 * 5 -1;
+    parameter X_fin = X_off + 124 * 5 -1; //677
+    parameter Y_fin = Y_off + 81 * 5 -1; //447
 
 
     parameter BLOCK_SIZE = 5;   // Dimensione di ciascun blocco in pixel
@@ -41,8 +41,13 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
 
 
     wire game_area; //playing game's area
+    reg addr_enable;
+	reg body_found;
+
+//integer for cycle
+   integer i=0;
    
-    assign game_area = (X>=58&& X<=677 && Y >= 43 && Y <= 447) ? 1'b1 : 1'b0;  
+    assign game_area = (X>=X_off && X<= X_fin && Y >= Y_off && Y <= Y_fin) ? 1'b1 : 1'b0;  
                                   //683                 //452
 
     
@@ -162,9 +167,6 @@ end
         end
     end
    
-	reg addr_enable;
-	reg body_found;
-   integer i=0;
 
 
     //assegnazione della figura (testa, coda, frutto o corpo) al corrispondente blocco

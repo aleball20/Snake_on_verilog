@@ -45,18 +45,24 @@ always @ (posedge clock_25 or negedge reset) begin
    end
 
    else begin
-         if(X >= 445 && X <= 456) begin //scrivo la decina
+         if(X >= 447 && X <= 459) begin //scrivo la decina
             selected_score_number <= dec;
+            if(X> 447 && X<458) begin
             en_score <= 1'b1;
-            if(X<=454)
-            score_count <= X - 445 + 10*residual;
-            end
+            score_count <= X - 448 + 10*residual;
+				end
+            else
+               en_score <= 1'b0;
+			end
 
-         else if (X >= 460 && X <= 471) begin // scrivo l'unitÃ 
+         else if (X >= 462 && X <= 474) begin // scrivo l'unitÃ 
             selected_score_number <= unit;
+            if(X>462 && X<473) begin
             en_score <= 1'b1;
-            if(X<=469)  
-            score_count <= X - 460 + 10*residual;  
+            score_count <= X - 463 + 10*residual; 
+            end 
+            else 
+               en_score <= 1'b0;
          end
          
          else if (Y > Y_prev) begin
