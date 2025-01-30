@@ -1,4 +1,4 @@
-
+/*testbench for wrapper_general_for_test*/
 `timescale 1ns/100ps
 
 

@@ -1,3 +1,4 @@
+/*testbench for wrapper_snake_game*/
 
 `timescale 1ns/100ps
 
@@ -98,7 +99,10 @@ initial begin
      right_P_tb =1;
 	  #50
 	  right_P_tb =0;
-	  #100000000;
+	  #1000000;
+	  left_P_tb =1;
+	  #50
+	  left_P_tb =0;
 	   #1000000000;
     right_P_tb=1;
         #1000000;

@@ -1,4 +1,8 @@
-module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, left, right, up, down, selected_symbol, snake_length, game_enable, color_data, selected_figure);
+/*This module takes the blocks modfied by the snake_game_fsm and prints it in the gmae area, sending the
+game_enable and the color_data to the VGA_controller*/
+
+module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y,
+                 fruit_x, fruit_y, left, right, up, down, selected_symbol, snake_length, game_enable, color_data, selected_figure);
 
     parameter PIXEL_DISPLAY_BIT = 9;
     parameter SNAKE_LENGTH_BIT = 6;
@@ -16,8 +20,10 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
     parameter TAIL_DOWN = 4'b1000;
     parameter FRUIT =4'b1001;
 
-    parameter X_off = 58;      // posizione (0,0) all'interno del rettangolo di gioco
+    // position (0,0) of the cells
+    parameter X_off = 58;      
     parameter Y_off = 43; 
+    //posotion(123,80) of the cells
     parameter X_fin = X_off + 124 * 5 -1; //677
     parameter Y_fin = Y_off + 81 * 5 -1; //447
 
@@ -51,13 +57,13 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
                                   //683                 //452
 
     
-    //definisco contatori all'interno del blocco
+    //define counters of the block
     reg  [6:0] x_block, y_block;    //contatori lungo x e y dei blocchi di gioco
     reg [2:0] x_local, y_local;    //contatore del pixel (da 0 a 4) all'interno del blocco corrente
 
 
 //ricostruzione della matrice del bodysnake. Questa deve essere un ciclo di clock in ritardo rispetto al invio del 
-//a quando ÃƒÂ¨ stata inviata
+//a quando e stata inviata
 
 reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-2];        
 reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-2]; 
@@ -195,7 +201,6 @@ end
         end
         
         else if (game_area) begin
-
             // Default: disabilita il gioco
 				
 			selected_figure <= selected_figure;

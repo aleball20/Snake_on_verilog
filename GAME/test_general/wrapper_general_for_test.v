@@ -1,3 +1,5 @@
+/*Wrapper that combines the two test modules*/
+
 module wrapper_general_for_test(collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, frame_tik, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
 snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y, game_enable, game_area, semaforo, color_data,
 selected_figure, x_block, y_block, x_local, y_local);

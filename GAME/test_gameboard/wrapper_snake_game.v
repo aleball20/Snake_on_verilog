@@ -1,4 +1,4 @@
-
+/*wrapper for the testbanch*/
 
 module wrapper_snake_game(score_count, selected_score_number, en_score, en_time,  time_tik, selected_time_number, time_count, number_pixel, collision_fruit, sync_reset, fruit_eaten, start, game_over, body_count, collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, frame_tik, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
                             snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y);
@@ -77,12 +77,20 @@ vga_tracker my_vga_tracker(
 );
 
 
-game_delay my_game_delay(
+
+game_delay_fsm my_game_delay_fsm(
     .clock_25(clock_25),
     .reset(reset),
     .frame_tik(frame_tik),
-    .game_tik(game_tik)
+    .game_tik(game_tik),
+	.start(start),
+    .SW17(0),
+    .SW16(1),
+    .SW15(0)
 );
+
+
+
  
 time_controller my_time_controller(
     .clock_25(clock_25),

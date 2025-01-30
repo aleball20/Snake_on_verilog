@@ -68,8 +68,8 @@ reg [1:0]right_shifter, left_shifter;
 
 wire [6:0] new_position_x, new_position_y;
 wire fruit_eaten;
-reg [SNAKE_LENGTH_MAX-1'b1:0] collision_vector;
-reg [SNAKE_LENGTH_MAX-1'b1:0] fruit_vector;
+reg [SNAKE_LENGTH_MAX-2:0] collision_vector;
+reg [SNAKE_LENGTH_MAX-2:0] fruit_vector;
 
 reg collision_fruit, collision_detected;
 
@@ -105,7 +105,7 @@ always @(current_state, left_sync, right_sync, game_tik, collision_detected, fru
     case (current_state)
         
         RESET_IDLE:  begin
-            next_state <= IDLE;
+            next_state = IDLE;
         end
 
         IDLE: begin
@@ -291,7 +291,7 @@ always @(current_state)
         else if (en_move==1'b1)  
                 body_count<=0;
         
-        else if(frame_tik==1'b0 || body_count == SNAKE_LENGTH_MAX-2)
+        else if(collision_detected== 1'b1 || frame_tik==1'b0 || body_count == SNAKE_LENGTH_MAX-2)
                 body_count <= body_count;
         else
             body_count <= body_count + 1'b1;
@@ -436,7 +436,7 @@ assign fruit_eaten = (fruit_x==snake_head_x && fruit_y == snake_head_y) ? 1'b1 :
 
 PRBS random_sequence_x(
     .clock_25(clock_25),
-        .reset(reset),
+    .reset(reset),
     .initial_seed(7'b0011100),
     .rnd(new_position_x)
 );
@@ -461,7 +461,7 @@ end
 
 always @ (*) begin
     if((fruit_x == snake_head_x && fruit_y== snake_head_y) || fruit_vector > 0 || 
-                (fruit_x >= HORIZONTAL_CELLS_NUM-1'b1) || fruit_y >= (VERTICAL_CELLS_NUM-1'b1) || (fruit_x == 0) || (fruit_y==0))
+                (fruit_x >= HORIZONTAL_CELLS_NUM-1'b1) || fruit_y >= (VERTICAL_CELLS_NUM-1'b1) || (fruit_x == 1) || (fruit_y==1))
         collision_fruit= 1'b1;
         
     else
@@ -483,15 +483,15 @@ end
 
 always @ (*) begin
     // Verifica se la testa del serpente fuori dai bordi
-    if (snake_head_x == 1 || snake_head_x == (HORIZONTAL_CELLS_NUM-1'b1) ||
-            snake_head_y == 1 || snake_head_y ==( VERTICAL_CELLS_NUM-1'b1))
+    if ((snake_head_x == 0 &&  left==1) || (snake_head_x == (HORIZONTAL_CELLS_NUM) && right==1) ||
+            (snake_head_y == 0 && up== 1) || (snake_head_y ==( VERTICAL_CELLS_NUM) && down== 1))
 
         collision_detected = 1'b1;    // Se la testa  fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
     
-    else if(collision_vector > 0)
+    else if(collision_vector > 0)   // Verifica se la testa del serpente ha colpito se stessa (ossia una posizione gia occupata dal corpo)
         collision_detected = 1'b1;
 
-    else       // Verifica se la testa del serpente ha colpito se stessa (ossia una posizione gia occupata dal corpo)
+    else       
         
         collision_detected = 0; // Inizialmente, nessuna collisione      
 end
@@ -506,9 +506,9 @@ end
     else begin
         right_shifter <= { right_shifter[0], right_P};
         if (right_shifter[0]==1'b1 && right_shifter[1]==1'b0) 
-            right_sync=1'b1;
+            right_sync<=1'b1;
         else
-            right_sync=1'b0;       
+            right_sync<=1'b0;       
     end
     
 end
@@ -522,9 +522,9 @@ always @ (posedge clock_25 or negedge reset ) begin
     else begin
         left_shifter <= { left_shifter[0], left_P};
         if (left_shifter[0]==1'b1 && left_shifter[1]==1'b0) 
-            left_sync=1'b1;
+            left_sync<=1'b1;
         else
-            left_sync=1'b0;       
+            left_sync<=1'b0;       
     end
     
 end

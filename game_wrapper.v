@@ -1,10 +1,10 @@
-module game_wrapper (CLOCK_50, KEY0, KEY2, KEY3, VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK, VGA_R, VGA_G, VGA_B);
+module game_wrapper (CLOCK_50, KEY0, KEY2, KEY3, SW17, SW16, SW15, VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK, VGA_R, VGA_G, VGA_B);
 
 parameter PIXEL_DISPLAY_BIT = 10;
 parameter SNAKE_LENGTH_BIT = 6;
 
 
-input CLOCK_50, KEY0, KEY2, KEY3;
+input CLOCK_50, KEY0, KEY2, KEY3, SW17, SW16, SW15;
 output VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK;
 output [PIXEL_DISPLAY_BIT-1'b1:0]  VGA_R, VGA_G, VGA_B;
 
@@ -57,11 +57,15 @@ clock_25_divisor my_frequency_25MHz(
 .clock_25(clock_25)
 );
 
-game_delay my_game_delay(
+game_delay_fsm my_game_delay_fsm(
     .clock_25(clock_25),
     .reset(reset),
     .frame_tik(frame_tik),
-    .game_tik(game_tik)
+    .game_tik(game_tik),
+	.start(start),
+    .SW17(SW17),
+    .SW16(SW16),
+    .SW15(SW15)
 );
 
 

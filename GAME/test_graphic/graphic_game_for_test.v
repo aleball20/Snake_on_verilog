@@ -1,3 +1,4 @@
+/* This module is a copy of "graphic_game", we used it for testbanch*/
 
 module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, snake_length, game_area, game_enable, color_data, selected_figure, semaforo);
 
@@ -33,12 +34,6 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
     output reg [1:0] color_data;                                 // Output: colore del pixel corrente
     output reg [1:0] selected_figure;                            // Output: tipo di figura (testa, corpo, coda, frutto)
 
-
-//	OCCHIOOOOOOO DA RIMETTERE COME REG E BASTA !!!!!!!! QUESDTE 2 DEFINIZIONI SOTTO
-//
-//sTESSA COSA NEL MODULE ALL'INIZIOOO
-
-    //da mette come wireeeee quando test bench finito e semafro proprio da togliere
 
     output game_area; //playing game's area
     assign game_area = (X>=58 && X<=678 && Y >= 43 && Y <= 448) ? 1'b1 : 1'b0;  

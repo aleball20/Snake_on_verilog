@@ -1,3 +1,4 @@
+/*wrapper for the testbanch*/
 
 module wrapper_graphic(x_block, y_block, x_local, y_local, clock_25, reset, X, Y, snake_head_x, snake_head_y, snake_body_x, snake_body_y,
 fruit_x, fruit_y, snake_length, body_count, selected_figure, game_enable, game_area, color_data, semaforo);

@@ -1,3 +1,5 @@
+/*testbench for wrapper_graphic*/
+
 `timescale 1ns/100ps
 
 module graphic_game_tb;
