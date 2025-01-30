@@ -4,7 +4,7 @@
 module snake_game_fsm_for_test( collision_detected, collision_fruit, fruit_eaten, right, left, up, down, right_sync, left_sync, right_register, left_register, current_state, next_state, clock_25, frame_tik, game_tik, start, game_over, reset, 
 sync_reset, right_P, left_P, score, snake_head_x, snake_head_y, snake_body_x, body_count, snake_body_y, fruit_x, fruit_y, snake_length); 
 
-parameter SNAKE_LENGTH_BIT = 6;
+parameter SNAKE_LENGTH_BIT = 7;
 parameter SNAKE_LENGTH_MAX = 2**SNAKE_LENGTH_BIT; 
 parameter HORIZONTAL_CELLS_NUM = 124; //da aggiungere in futuro
 parameter VERTICAL_CELLS_NUM = 81;

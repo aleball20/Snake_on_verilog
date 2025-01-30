@@ -4,7 +4,7 @@ module wrapper_graphic(x_block, y_block, x_local, y_local, clock_25, reset, X, Y
 fruit_x, fruit_y, snake_length, body_count, selected_figure, game_enable, game_area, color_data, semaforo);
 
 parameter PIXEL_DISPLAY_BIT = 9;
-parameter SNAKE_LENGTH_BIT = 6;	
+parameter SNAKE_LENGTH_BIT = 7;	
 
 input  clock_25, reset;
 input [PIXEL_DISPLAY_BIT:0] X, Y; 

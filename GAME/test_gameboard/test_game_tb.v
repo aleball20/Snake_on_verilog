@@ -6,7 +6,7 @@
 module test_game_tb;
 
 parameter PIXEL_DISPLAY_BIT = 9;
-parameter SNAKE_LENGTH_BIT = 6;
+parameter SNAKE_LENGTH_BIT = 7;
 
 reg  clock_25_tb, reset_tb;
 reg right_P_tb, left_P_tb;

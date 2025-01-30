@@ -1,7 +1,7 @@
 module game_wrapper (CLOCK_50, KEY0, KEY2, KEY3, SW17, SW16, SW15, VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK, VGA_R, VGA_G, VGA_B);
 
 parameter PIXEL_DISPLAY_BIT = 10;
-parameter SNAKE_LENGTH_BIT = 6;
+parameter SNAKE_LENGTH_BIT = 7;
 
 
 input CLOCK_50, KEY0, KEY2, KEY3, SW17, SW16, SW15;
@@ -41,7 +41,7 @@ wire [8:0] x_start_count;
 wire [6:0] y_start_count;
 wire [7:0] x_game_over_count;
 wire [4:0] y_game_over_count;
-wire en_start_game, en_game_over; //values from start_game or game_over
+wire en_start_game, en_game_over; 
 
 assign selected_number = selected_score_number | selected_time_number;
 assign number_count = score_count | time_count;

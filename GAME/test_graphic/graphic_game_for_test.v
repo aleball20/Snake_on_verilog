@@ -49,244 +49,225 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
 
 reg [6:0] snake_body_x_reg [0:SNAKE_LENGTH_MAX-2];        
 reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-2];  
-reg tail_assignmet;
 
 
 always @ (posedge clock_25) begin
-    if (body_count ==0) begin
-        snake_body_x_reg[body_count] <= snake_body_x;
-        snake_body_y_reg[body_count] <= snake_body_y;
-        tail_assignment <= 0;
+
+    snake_body_x_reg[body_count] <= snake_body_x;
+    snake_body_y_reg[body_count] <= snake_body_y;
+end     
+
+
+// Calculate the relative coordinates of the block
+
+always @(posedge clock_25 or negedge reset) begin                
+    if(~reset) begin
+        y_block <= 7'b0000000;
+        y_local <=3'b000;
+        x_block <= 7'b0000000;
+        x_local <=3'b000;
     end
-    else if (body_count < SNAKE_LENGTH_MAX -2 -1) begin
-        snake_body_x_reg[body_count-1] <= snake_body_x;
-        snake_body_y_reg[body_count-1] <= snake_body_y;
-        tail_assigment <= 0;
-    end
-    else if(body_count == SNAKE_LENGTH_MAX -2 && tail_assignment == 1'b0) begin
-        snake_body_x_reg[body_count-1] <= snake_body_x;
-        snake_body_y_reg[body_count-1] <= snake_body_y;
-        tail_assigment <= 1;
-    end
-    else if (body_count == SNAKE_LENGTH_MAX -2 && tail_assignment == 1'b1) begin
-        snake_body_x_reg[body_count] <= snake_body_x;
-        snake_body_y_reg[body_count] <= snake_body_y;
-        tail_assigment <= 1;
-    end  
-end   
 
+    else if((Y>=Y_off) && (Y<=Y_fin))
+        
+                    if((X>=X_off) && (X<=X_fin)) begin
+                        if(X>=BLOCK_SIZE * x_block + X_off) begin 
+                            x_block <= x_block +1'b1;
+                            x_local <=3'b000;
+                        end
+                        else
+                            x_local <=x_local +1'b1;
+                    end
+                    
+                    else if(X==799 && (Y>=BLOCK_SIZE * y_block + Y_off) ) begin
+                        
+                            y_block <= y_block +1'b1;
+                            y_local <=3'b000;
+                            x_block <= 7'b0000000;
+                            x_local <=x_local;
+                    end
+                    
+                    else if (X ==799) begin
+                            y_local <= y_local +1'b1;
+                            x_block <= 7'b0000000;
+                            x_local <= x_local;
+                        end
+                        
+                    else begin
+                            x_local <= x_local;
+                            y_local <= y_local;
+                            x_block <= x_block;
+                            y_block <= y_block;
+                    end
 
-
-
-    // Calcola le coordinate relative al blocco
-    
-
-    always @(posedge clock_25) begin                
-        if(~reset) begin
-            y_block <= 7'b0000000;
-            y_local <=3'b000;
-			x_block <= 7'b0000000;
-            x_local <=3'b000;
-        end
-
-        else if((Y>=Y_off) && (Y<=Y_fin))
-		  
-						if((X>=X_off) && (X<=X_fin)) begin
-							if(X>=BLOCK_SIZE * x_block + X_off) begin 
-								x_block <= x_block +1'b1;
-								x_local <=3'b000;
-							end
-							else
-								x_local <=x_local +1'b1;
-						end
-						
-						else if(X==799 && (Y>=BLOCK_SIZE * y_block + Y_off) ) begin
-						  
-                                y_block <= y_block +1'b1;
-                                y_local <=3'b000;
-                                x_block <= 7'b0000000;
-                                x_local <=x_local;
-						end
-						
-						else if (X ==799) begin
-                                y_local <= y_local +1'b1;
-                                x_block <= 7'b0000000;
-                                x_local <= x_local;
-						 end
-						  
-						else begin
-                                x_local <= x_local;
-                                y_local <= y_local;
-								x_block <= x_block;
-								y_block <= y_block;
-						end
-
-        else begin
-            y_block <= 7'b0000000;
-            y_local <=3'b000;
+    else begin
+        y_block <= 7'b0000000;
+        y_local <=3'b000;
         end
     end
 
-    //Contatori ausiliari anticipati di 2 ciclio di clock
+    //Auxiliary counters advanced by 2 clock cycles. In this way, when the tracker reaches the actual value,
+    // the corresponding symbol will already be available to be printed.
 
   reg [6:0] x_block_advance, y_block_advance;
   reg [2:0] x_local_advance, y_local_advance;
 
-    always @(posedge clock_25) begin                
-        if(~reset) begin
-            y_block_advance <= 7'b0000000;
-            y_local_advance <=3'b000;
-			x_block_advance <= 7'b0000000;
-            x_local_advance <=3'b000;
+always @(posedge clock_25 or negedge reset) begin                
+    if(~reset) begin
+        y_block_advance <= 7'b0000000;
+        y_local_advance <=3'b000;
+        x_block_advance <= 7'b0000000;
+        x_local_advance <=3'b000;
+    end
+
+    else if((Y>=Y_off) && (Y<=Y_fin))
+        
+                    if((X>=X_off-2) && (X<=X_fin-2)) begin
+                        if(X>=BLOCK_SIZE * x_block_advance + X_off-2) begin 
+                            x_block_advance <= x_block_advance +1'b1;
+                            x_local_advance <=3'b000;
+                        end
+                        else
+                            x_local_advance <=x_local_advance +1'b1;
+                    end
+
+                    else if(X==797 && (Y>=BLOCK_SIZE * y_block_advance + Y_off) ) begin					  
+                            y_block_advance <= y_block_advance +1'b1;
+                            y_local_advance <=3'b000;
+                            x_block_advance <= 7'b0000000;
+                            x_local_advance <=x_local_advance;
+                    end
+                
+                    else if (X ==797) begin
+                            y_local_advance <= y_local_advance +1'b1;
+                            x_block_advance <= 7'b0000000;
+                            x_local_advance <= x_local_advance;
+                    end
+                    
+                    else begin
+                            x_local_advance <= x_local_advance;
+                            y_local_advance <= y_local_advance;
+                            x_block_advance <= x_block_advance;
+                            y_block_advance <= y_block_advance;
+                    end
+
+    else begin
+        y_block_advance <= 7'b0000000;
+        y_local_advance <=3'b000;
+    end
+end
+
+
+
+///assigning the figure (head, tail, fruit or body) to the corresponding block
+
+always @(*) begin
+    body_found=1'b0;
+
+    for (i =0 ;i< SNAKE_LENGTH_MAX-3 ; i=i+1 ) begin      //check all the body parts exept for head and tail
+        if ((game_area==1) && (i<snake_length-1) && (x_block_advance == snake_body_x_reg[i]) && (y_block_advance == snake_body_y_reg[i])) begin
+                body_found=1'b1;
+        end                 
+    end
+end
+
+
+
+always @(posedge clock_25 or negedge reset) begin
+
+    if (~reset) begin
+        addr_enable<=1'b0;
+        selected_figure <= 2'b00;
+    end
+    
+    else if (game_area) begin
+        // Default: it keeps the previous figure
+            
+        selected_figure <= selected_figure;
+
+        if ((x_block_advance == snake_head_x) && (y_block_advance == snake_head_y)) begin  //head check and assigment of the corrisponding direction of the head
+            if(up)begin
+                addr_enable <= 1'b1;      
+                selected_figure <= HEAD_UP;
+            end
+            else if(down) begin
+                addr_enable <= 1'b1;      
+                selected_figure <= HEAD_DOWN;
+            end
+            else if(right)begin
+                addr_enable <= 1'b1;      
+                selected_figure <= HEAD_RIGTH;
+            end
+            else if(left)begin
+                addr_enable <= 1'b1;      
+                selected_figure <= HEAD_LEFT;
+            end
+                
+        end 
+
+        else if (body_found ==1 ) begin //body check
+            addr_enable <= 1'b1;
+            selected_figure <= BODY;
         end
 
-        else if((Y>=Y_off) && (Y<=Y_fin))
-		  
-						if((X>=X_off-2) && (X<=X_fin-2)) begin
-							if(X>=BLOCK_SIZE * x_block_advance + X_off-2) begin 
-								x_block_advance <= x_block_advance +1'b1;
-								x_local_advance <=3'b000;
-							end
-							else
-								x_local_advance <=x_local_advance +1'b1;
-						end
+        else if ((x_block_advance == snake_body_x_reg[snake_length-1]) && (y_block_advance == snake_body_y_reg[snake_length-1])) begin  //tail check and assigment of the corrisponding direction of the tail
+            if(up)begin
+            addr_enable <= 1'b1; 
+            selected_figure <= TAIL_UP;
+            end
 
-						else if(X==797 && (Y>=BLOCK_SIZE * y_block_advance + Y_off) ) begin					  
-                                y_block_advance <= y_block_advance +1'b1;
-                                y_local_advance <=3'b000;
-                                x_block_advance <= 7'b0000000;
-                                x_local_advance <=x_local_advance;
-                        end
-                    
-                        else if (X ==797) begin
-                                y_local_advance <= y_local_advance +1'b1;
-                                x_block_advance <= 7'b0000000;
-                                x_local_advance <= x_local_advance;
-                        end
-                      
-                        else begin
-                                x_local_advance <= x_local_advance;
-                                y_local_advance <= y_local_advance;
-								x_block_advance <= x_block_advance;
-								y_block_advance <= y_block_advance;
-                        end
+            else if(down)begin
+            addr_enable <= 1'b1; 
+            selected_figure <= TAIL_DOWN;
+            end
+
+            else if(right)begin
+            addr_enable <= 1'b1; 
+            selected_figure <= TAIL_RIGTH;
+            end
+
+            else if(left)begin
+            addr_enable <= 1'b1; 
+            selected_figure <= TAIL_LEFT;
+            end
+            
+        end
+
+        else if ((x_block_advance == fruit_x) && (y_block_advance == fruit_y)) begin //fruit check
+
+            addr_enable <= 1'b1;
+            selected_figure <= FRUIT;
+        end
 
         else begin
-            y_block_advance <= 7'b0000000;
-            y_local_advance <=3'b000;
+            addr_enable <= 1'b0;
+            selected_figure <= 1'b0;
         end
     end
-   
-	reg addr_enable;
-	reg body_found;
-   integer i=0;
-
-
-    //assegnazione della figura (testa, coda, frutto o corpo) al corrispondente blocco
-    //e stato inserito il for in un blocco always combinatorio apparte perche altrimenti vi erano problemi di compilazione
-    
-    always @(*) begin
-        body_found=1'b0;
-        semaforo =1'b0; //DA RIMUOVERE 
-
-        for (i =0 ;i< SNAKE_LENGTH_MAX-3 ; i=i+1 ) begin      //controllo tutte le parti del corpo tranne testa e coda 
-            if ((game_area==1) && (i<snake_length-2) && (x_block_advance == snake_body_x_reg[i]) && (y_block_advance == snake_body_y_reg[i])) begin
-                    body_found=1'b1;
-                    semaforo =1'b1; //DA RIMUOVERE
-            end                 
-        end
-    end
-
-   
-
-    always @(posedge clock_25 or negedge reset) begin
-
-        if (~reset) begin
-
-            // Reset dei segnali
-
-           addr_enable<=1'b0;
-           selected_figure <= 2'b00;
-        end
         
-        else if (game_area) begin
-
-            // Default: disabilita il gioco
-				
-			selected_figure <= selected_figure;
-
-            if ((x_block_advance == snake_head_x) && (y_block_advance == snake_head_y)) begin 
-                
-                 addr_enable <= 1'b1;      
-                selected_figure <= HEAD;
-            end 
-
-            else if (body_found ==1 ) begin
-                addr_enable <= 1'b1;
-                selected_figure <= BODY;
-            end
-
-            else if ((x_block_advance == snake_body_x_reg[snake_length-1]) && (y_block_advance == snake_body_y_reg[snake_length-1])) begin  //controllo coda
-
-                addr_enable <= 1'b1; 
-                selected_figure <= TAIL;
-
-            end
-
-            else if ((x_block_advance == fruit_x) && (y_block_advance == fruit_y)) begin
-
-                addr_enable <= 1'b1;
-                selected_figure <= FRUIT;
-            end
-            				
-        end
-		  
-    end
-	 
-	 always @ (posedge clock_25 or negedge reset) begin //questa potrebbe essere ridondante da verificare...
-		if (~reset)
-				game_enable <=1'b0;
-		else
-				game_enable <= addr_enable;
-	 end
-
-     
-    wire [5:0] pixel_index;								 // Indice del pixel (0-24) nel vettore
-    assign pixel_index = y_local * 10 + x_local * 2;  
-	 
-	always @ (posedge clock_25 or negedge reset) begin
-	 
-		if (~reset)
-				color_data <=2'b00;
-
-	   else if (game_enable == 1'b1)
-					color_data <= {selected_symbol[49-pixel_index],selected_symbol[48-pixel_index]};
-		else
-					color_data <=2'b00;
+end
+    
+    always @ (posedge clock_25 or negedge reset) begin  // game_enable has to be delayed by two clock cycles in order to be sycnronized with the pi 
+    if (~reset)
+            game_enable_vect <= 2'b00;
+    else 
+            game_enable_vect <= {game_enable_vect[0],addr_enable};
     end
 
-	 
+assign game_enable = game_enable_vect[1];
+
+assign pixel_index = y_local * 10 + x_local * 2;  //pixel index has the value of the pixel position of the current block 
+    
+always @ (posedge clock_25 or negedge reset) begin
+    
+    if (~reset)
+            color_data <=2'b00;
+
+    else if (game_enable_vect[0] == 1'b1)        //the 2 pixel of color data goes as output to te VGA controller
+                color_data <= {selected_symbol[49-pixel_index],selected_symbol[48-pixel_index]};
+    else
+                color_data <=2'b00;
+end
+
     
 endmodule
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

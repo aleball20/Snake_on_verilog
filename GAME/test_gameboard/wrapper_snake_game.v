@@ -4,7 +4,7 @@ module wrapper_snake_game(score_count, selected_score_number, en_score, en_time,
                             snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y);
 
 parameter PIXEL_DISPLAY_BIT = 9;
-parameter SNAKE_LENGTH_BIT = 6;									 
+parameter SNAKE_LENGTH_BIT = 7;									 
 
 input clock_25, reset;
 input right_P, left_P;

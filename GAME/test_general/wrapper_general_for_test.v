@@ -5,7 +5,7 @@ snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_V
 selected_figure, x_block, y_block, x_local, y_local);
 
 parameter PIXEL_DISPLAY_BIT = 9;
-parameter SNAKE_LENGTH_BIT = 6;
+parameter SNAKE_LENGTH_BIT = 7;
 
 input clock_25, reset;
 input right_P, left_P;

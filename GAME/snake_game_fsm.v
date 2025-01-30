@@ -1,12 +1,10 @@
-/* Modulo di gioco. Qui si gestisce il comportamento dello snake e lo stato di gioco.
-Si definisce una griglia di gioco nel quale verrano collocati i blocchi del serpente e il frutto.
-Ogni singola cella della griglia dimensinone 124x81 celle */
+/*This FSM menages all the games registers, it takes the  user input */
 
 
 module snake_game_fsm( clock_25, frame_tik, game_tik, start, game_over, reset, sync_reset, right_P, left_P, score, left, right, up, down,
 					snake_head_x, snake_head_y, snake_body_x, body_count, snake_body_y, fruit_x, fruit_y, snake_length); 
 
-parameter SNAKE_LENGTH_BIT = 6;
+parameter SNAKE_LENGTH_BIT = 7;
 parameter SNAKE_LENGTH_MAX = 2**SNAKE_LENGTH_BIT; 
 parameter HORIZONTAL_CELLS_NUM = 124; //da aggiungere in futuro
 parameter VERTICAL_CELLS_NUM = 81;
@@ -31,21 +29,23 @@ parameter BEGIN_FRUIT_X = 7'd18;       // Posizione iniziale del frutto (randomi
 parameter BEGIN_FRUIT_Y = 7'd50;
 
 
-    input clock_25;                                                 // Clock di sistema
-    input game_tik, frame_tik;                                      // tik a 30Hz in uscia da un divisore con ingresso il frame_tik
-    input reset;                                                    // Reset del gioco per riportare il gioco a stato iniziale
-    input left_P, right_P;                                          // Comandi di movimento
-    output start, game_over;                                        // this bit comunicate if the game is going or there is a gameover
-    output sync_reset;                                              //syncronus reset
-    output left, right, up, down;                                    // direzioni effettive dello snake
-    output [6:0] snake_head_x, snake_head_y;                         // Posizione della testa del serpente (range 0-123 per x, 0-80 per y)
-    output [6:0] snake_body_x;                                      // Posizioni del corpo del serpente (massimo 16 segmenti)
-    output [6:0] snake_body_y;                                       // Posizioni del corpo del serpente (massimo 16 segmenti)
-    output [6:0] fruit_x, fruit_y;      							   // Posizione del frutto (randomica)
-    output [SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
-    output reg [SNAKE_LENGTH_BIT-1:0] body_count;                   //counter per inviare il corpo dello snake
-                                                                                    //bit di abilitzione al movimento dello snake
-    output reg [6:0] score;                                           // Punteggio corrente del gioco
+input clock_25;                                                 // System clock
+input game_tik;                                                 // When set to one the snakes moves
+input frame_tik;                                                // It comunciates when the traker is in the veritical front porch and so the snakes reisters can be modified
+input reset;                                                    // Game reset to return the game to its initial state
+input left_P, right_P;                                          // Movement controls
+output start, game_over;                                        // This bit communicates if the game is running or if there is a game over
+output sync_reset;                                              // Synchronous reset
+output left, right, up, down;                                   // Actual movement directions of the snake
+output [6:0] snake_head_x, snake_head_y;                        // Position of the snake's head (range 0-123 for x, 0-80 for y)
+output [6:0] snake_body_x;                                      // Positions of the snake's body
+output [6:0] snake_body_y;                                      // Positions of the snake's body
+output [6:0] fruit_x, fruit_y;                                  // Position of the fruit (random)
+output [SNAKE_LENGTH_BIT-1:0] snake_length;                     // Length of the snake (number of segments)
+output reg [SNAKE_LENGTH_BIT-1:0] body_count;                   // Counter to send the snake's body
+
+output reg [6:0] score;                                         // Game score
+
 
 
 
@@ -461,7 +461,7 @@ end
 
 always @ (*) begin
     if((fruit_x == snake_head_x && fruit_y== snake_head_y) || fruit_vector > 0 || 
-                (fruit_x >= HORIZONTAL_CELLS_NUM-1'b1) || fruit_y >= (VERTICAL_CELLS_NUM-1'b1) || (fruit_x == 1) || (fruit_y==1))
+                (fruit_x >= HORIZONTAL_CELLS_NUM-1'b1) || fruit_y >= (VERTICAL_CELLS_NUM-1'b1) || (fruit_x <= 1) || (fruit_y<=1))
         collision_fruit= 1'b1;
         
     else
@@ -483,8 +483,8 @@ end
 
 always @ (*) begin
     // Verifica se la testa del serpente fuori dai bordi
-    if ((snake_head_x == 0 &&  left==1) || (snake_head_x == (HORIZONTAL_CELLS_NUM) && right==1) ||
-            (snake_head_y == 0 && up== 1) || (snake_head_y ==( VERTICAL_CELLS_NUM) && down== 1))
+    if ((snake_head_x == 1 &&  left==1) || (snake_head_x == (HORIZONTAL_CELLS_NUM) && right==1) ||
+            (snake_head_y == 1 && up== 1) || (snake_head_y ==( VERTICAL_CELLS_NUM) && down== 1))
 
         collision_detected = 1'b1;    // Se la testa  fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
     
