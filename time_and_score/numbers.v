@@ -1,11 +1,13 @@
+
+/* To allow reading numbers, the cells are 10x10 pixels in size. Therefore, each square consists of 100 bits.
+As a result, each figure is represented using 100 bits (1 bits per pixel). The reading process starts
+with the MSB representing pixel in the matrix position [1][1], then proceeds to read the next pixel [2][1],
+and so on. The output is a bit representing the enable color (green (1) or black(0) see VGA controller) of the selected pixel. */
+
 module numbers (number_pixel, clock_25, number_count, selected_number);
 
-/*per permettere la lettura dei numeri, le celle sono di dimensione 10x10 pixel. Quindi ogni quadrato ha 100 bit.
-di conseguenza ogni figura Ã¨ rappresentata con 200 bit (2 per ogni pixel). La lettura avviene partendo  
-dalla coppie dei 2 MSB che rappresentano il pixel [1][1], per poi procedere leggendo il pixel successivo [2][1]
-e cosi via. In uscita si ha un vettore di 2 bit raffigurante il colore del pixel selezionato */
 input clock_25;
-input [3:0] selected_number;   //Tramite selective decido quale numero prelevare dalla ROM
+input [3:0] selected_number;   //using selcted_number i decied which number reading
 input [7:0]number_count;              
 output number_pixel;
 reg [99:0] num[0:15];

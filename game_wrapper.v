@@ -30,6 +30,7 @@ wire [3:0] y_count;
 wire [7:0]x_count;
 wire [6:0] fruit_x, fruit_y;
 wire up, down, left, right;
+wire left_tail, right_tail, up_tail, down_tail;
 wire number_pixel;
 wire time_tik;
 wire sync_reset;
@@ -87,6 +88,10 @@ graphic_game my_graphic_game(
     .down(down),
     .left(left),
     .right(right),
+    .left_tail(left_tail), 
+    .right_tail(right_tail), 
+    .up_tail(up_tail), 
+    .down_tail(down_tail),
     .selected_symbol(selected_symbol),
     .snake_length(snake_length),
     .color_data(color_data),
@@ -103,7 +108,6 @@ symbol my_symbol (
 snake_game_fsm my_snake_game_fsm (
     .clock_25(clock_25),
     .game_tik(game_tik),
-	.frame_tik(frame_tik),
     .reset(reset),
     .right_P(~KEY2),
     .left_P(~KEY3),
@@ -120,6 +124,10 @@ snake_game_fsm my_snake_game_fsm (
     .down(down),
     .left(left),
     .right(right),
+    .left_tail(left_tail), 
+    .right_tail(right_tail), 
+    .up_tail(up_tail), 
+    .down_tail(down_tail),
     .start(start),
     .game_over(game_over),
     .sync_reset(sync_reset)

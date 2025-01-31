@@ -23,7 +23,7 @@ parameter V_TOTAL = V_DISPLAY + V_FRONT_PORCH + V_SYNC_PULSE + V_BACK_PORCH; //t
 
 input clock_25, reset;                  //vga's clock(equal to the total number of pixels in the monitor * 60Hz =25,2MHz ), reset
 output h_sync, v_sync;                  //orizzontal & vertical syncronization
-output display_area,                    //bit that is set to one in the display area
+output display_area;                    //bit that is set to one in the display area
 output frame_tik;                       //it is set to one when the traker gets to the vertical front porch
 output [PIXEL_DISPLAY_BIT:0] X,Y;       //X and Y trakers
 reg [PIXEL_DISPLAY_BIT:0] X;

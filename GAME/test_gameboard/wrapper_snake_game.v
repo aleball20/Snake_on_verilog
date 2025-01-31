@@ -34,7 +34,6 @@ output time_tik;
 snake_game_fsm_for_test my_snake_game_fsm_for_test(
     .clock_25(clock_25),
     .reset(reset),
-	.frame_tik(frame_tik),
     .game_tik(game_tik),
     .right_P(right_P),
     .left_P(left_P),

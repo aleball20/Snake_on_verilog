@@ -81,20 +81,20 @@ reg en_move, en_fruit, generate_fruit, start, game_over, sync_reset, send;
 integer i; 
 
 
-    //registro di uscita della rete di Moore
+// Moore state machine register
 
 always @(posedge clock_25 or negedge reset)
 
     if (~reset)
-        current_state <= RESET_IDLE;   // Inizializza lo stato a IDLE (stato iniziale)
+        current_state <= RESET_IDLE;   // Initialize the state to IDLE (initial state)
         
     
     else 
-        current_state <= next_state;  // Se non attivo il reset, aggiorna lo stato corrente con quello successivo
+        current_state <= next_state;  // If reset is not active, update the current state with the next state
 
 
 
-// Logica per aggiornare gli stai del gioco della FSM
+// Logic to update the game states of the FSM
 
 always @(current_state, left_sync, right_sync, game_tik, collision_detected, fruit_eaten, collision_fruit)
     
@@ -106,7 +106,7 @@ always @(current_state, left_sync, right_sync, game_tik, collision_detected, fru
 
         IDLE: begin
         
-            if (right_sync || left_sync)  // Se il giocatore fornisce un input (movimento), passa allo stato WAIT
+            if (right_sync || left_sync)  // If the player provides input (movement), transition to WAIT state
                 next_state = WAIT;
             else 
                 next_state = IDLE;
@@ -114,7 +114,7 @@ always @(current_state, left_sync, right_sync, game_tik, collision_detected, fru
         
         WAIT: begin
 
-            if (game_tik)
+            if (game_tik)           //if game_tik is set to 1 the snake goes to MOVING and it moves of 1 block
             next_state = MOVING;
         else
             next_state = WAIT;
@@ -127,23 +127,21 @@ always @(current_state, left_sync, right_sync, game_tik, collision_detected, fru
 
         MOVE_DONE: begin
             if (collision_detected)
-                next_state = COLLISION;        // Se si verifica una collisione, cambia lo stato a COLLISION
+                next_state = COLLISION;        // If a collision occurs, change state to COLLISION
 
             else if (fruit_eaten)
-                next_state = EATEN_FRUIT;      // Se il serpente mangia un frutto, cambia lo stato a EATEN_FRUI
+                next_state = EATEN_FRUIT;      // If the snake eats a fruit, change state to EATEN_FRUIT
             
             else
                 next_state = WAIT;
         
         end
 
-        EATEN_FRUIT: begin
-          
-                next_state = FRUIT_UPDATE;        // se ho collsione di generazione continua ad aggiornare posizione frutto
-    
+        EATEN_FRUIT: begin         
+                next_state = FRUIT_UPDATE;        
         end
 
-        FRUIT_UPDATE: begin
+        FRUIT_UPDATE: begin                     // If there is a generation collision, continue updating fruit position
         if(collision_fruit)
             next_state = FRUIT_UPDATE;
         else
@@ -153,16 +151,17 @@ always @(current_state, left_sync, right_sync, game_tik, collision_detected, fru
         
         
         COLLISION: begin
-            // In caso di collisione, il gioco termina e rimane nello stato COLLISION
+            // In case of collision, the game ends and remains in the COLLISION (game over) until when the player press a bottom
             if (right_sync || left_sync) 
                 next_state = RESET_IDLE;
             else 
                 next_state = COLLISION;
         end
 
-        default: next_state = IDLE; // Stato di default
+        default: next_state = RESET_IDLE; // Default state
 
     endcase
+
 
 
 
@@ -171,13 +170,13 @@ always @(current_state, left_sync, right_sync, game_tik, collision_detected, fru
 always @(current_state) 
     case (current_state)
         WAIT: begin
-            send = 1'b0;
-            en_move = 1'b0;
-            sync_reset= 1'b0;
-            en_fruit = 1'b0;
-            generate_fruit= 1'b0;
-            start = 1'b1;
-            game_over =1'b0;
+            send = 1'b0;                //if set to 1 it send the initial snake body postion to the graphic game
+            en_move = 1'b0;             //if set to 1 the snake moves
+            sync_reset= 1'b0;           //syncronus reset to restart the game when the game restart
+            en_fruit = 1'b0;            //if set to 1 it generates a new fruit position and increment the score
+            generate_fruit= 1'b0;       //if set to 1 it generates a new fruit position
+            start = 1'b1;               //if set to 1 the game has started
+            game_over =1'b0;            //if set to 1 there is a game over
                 
             
         end
@@ -268,8 +267,7 @@ always @(current_state)
     endcase
 
 
-//inizializzazione dell'uscita nello stato di IDLE   
-    
+//body_count is reset only in RESET_IDLE state or after every snake's move. After a collision or when the counter is equal to the snake lenght max boy stops to count  
     always @ (posedge clock_25 or negedge reset) begin
         if (~reset)
             body_count <= 0;
@@ -287,21 +285,21 @@ always @(current_state)
         else if (en_move==1'b1)  
                 body_count<=0;
         
-        else if(collision_detected== 1'b1 || frame_tik==1'b0 || body_count == SNAKE_LENGTH_MAX-2)
+        else if(collision_detected== 1'b1 || body_count == SNAKE_LENGTH_MAX-2)
                 body_count <= body_count;
         else
             body_count <= body_count + 1'b1;
                 
     end
     
-
+//body's vector is sent to graphich_game bit per bit 
     always @ (posedge clock_25 or negedge reset) begin
-        if (~reset) begin
+        if (~reset) begin                               // starting postion is sent
             snake_body_x <= BEGIN_SNAKE_HEAD_X -1'b1;
             snake_body_y <= BEGIN_SNAKE_HEAD_Y;
         end
     
-        else if (sync_reset==1'b1) begin //avevo messo collision detected
+        else if (sync_reset==1'b1) begin                // starting postion is sent
             snake_body_x <= BEGIN_SNAKE_HEAD_X -1'b1;
             snake_body_y <= BEGIN_SNAKE_HEAD_Y;
             
@@ -312,317 +310,355 @@ always @(current_state)
         end
     end
 
-always @ (posedge clock_25 or negedge reset) begin //il reset non  inserito dato che quando lo si effettua si va in IDLE E QUINDI sync_reset e attivo
+// Body's vector initialization and updates if en_move == 1
+    always @ (posedge clock_25 or negedge reset) begin 
 
-    if(~reset) begin
-        snake_head_x <= BEGIN_SNAKE_HEAD_X;    // Posizione iniziale della testa del serpente (centrato sulla griglia)
-        snake_head_y <= BEGIN_SNAKE_HEAD_Y;    // Posizione centrata nella griglia di 124x81
-        snake_length <= BEGIN_SNAKE_LENGTH;     // Lunghezza iniziale del serpente (ad esempio, 6 segmenti)
-        fruit_x <= BEGIN_FRUIT_X;               // Posizione iniziale del frutto (randomizzata o predefinita)
-        fruit_y <= BEGIN_FRUIT_Y;
-        score <= 7'd0;            // Punteggio iniziale del gioco   
-    end
-    
-    else if(sync_reset ) begin //INIZIALIZZAZIONE
-
-        snake_head_x <= BEGIN_SNAKE_HEAD_X;    // Posizione iniziale della testa del serpente (centrato sulla griglia)
-        snake_head_y <= BEGIN_SNAKE_HEAD_Y;    // Posizione centrata nella griglia di 124x81
-        snake_length <= BEGIN_SNAKE_LENGTH;        // Lunghezza iniziale del serpente (ad esempio, 6 segmenti)
-        fruit_x <= BEGIN_FRUIT_X;         // Posizione iniziale del frutto (randomizzata o predefinita)
-        fruit_y <= BEGIN_FRUIT_Y;
-        score <= 7'd0;            // Punteggio iniziale del gioco   
-
-        for (i=0; i<= SNAKE_LENGTH_MAX-2 ;i=i+1) begin
-            
-            if (i < BEGIN_SNAKE_LENGTH-1'b1) begin
-                snake_body_x_reg[i] <= BEGIN_SNAKE_HEAD_X-i-1'b1;
-                snake_body_y_reg[i] <= BEGIN_SNAKE_HEAD_Y;
-                        end
-            else begin
-                snake_body_x_reg[i] <= 7'b1111111;
-                snake_body_y_reg[i] <= 7'b1111111;
-            end
+        if(~reset) begin
+            snake_head_x <= BEGIN_SNAKE_HEAD_X;    // Initial position of the snake's head 
+            snake_head_y <= BEGIN_SNAKE_HEAD_Y;    
+            snake_length <= BEGIN_SNAKE_LENGTH;    // Initial length of the snake 
+            fruit_x <= BEGIN_FRUIT_X;              // Initial position of the fruit
+            fruit_y <= BEGIN_FRUIT_Y;
+            score <= 7'd0;                         // Initial game score   
         end
-
-    end
-
-    else if(en_move==1'b1) begin
-        // Aggiorna la posizione della testa del serpente in base agli input
-            if (up) begin
-                if (snake_head_y > 0) begin
-                    snake_head_y <= snake_head_y - 1'b1;    // Muove il serpente verso l'alto
-                    snake_head_x <= snake_head_x;
-                end
-        end 
-            
-            else if (down) begin
-                if (snake_head_y < VERTICAL_CELLS_NUM-1'b1) begin
-                    snake_head_y <= snake_head_y + 1'b1;    // Muove il serpente verso il basso
-                    snake_head_x <= snake_head_x;
-                end
-            end 
-            
-            else if (left) begin
-                if (snake_head_x > 0)  begin
-                    snake_head_x <= snake_head_x - 1'b1;     // Muove il serpente verso sinistra
-                    snake_head_y <= snake_head_y;
-                end
-            end 
-            
-            else if (right) begin
-                if (snake_head_x < HORIZONTAL_CELLS_NUM-1'b1) begin
-                    snake_head_x <= snake_head_x + 1'b1;     // Muove il serpente verso destra
-                    snake_head_y <= snake_head_y;
-                end
-            end
-            
-            //Aggiornamento del corpo del serpente 
+        
+        else if(sync_reset ) begin // SYNC INITIALIZATION
+    
+            snake_head_x <= BEGIN_SNAKE_HEAD_X;    
+            snake_head_y <= BEGIN_SNAKE_HEAD_Y;    
+            snake_length <= BEGIN_SNAKE_LENGTH;    
+            fruit_x <= BEGIN_FRUIT_X;              
+            fruit_y <= BEGIN_FRUIT_Y;
+            score <= 7'd0;                          
+    
+            for (i=0; i<= SNAKE_LENGTH_MAX-2 ;i=i+1) begin  //initial snake_body_reg 
                 
-                // Il primo segmento del corpo segue la testa del serpente
-            snake_body_x_reg[0] <= snake_head_x;
-            snake_body_y_reg[0] <= snake_head_y; 
-
-            // Lo spostamento del corpo avviene spostando ogni segmento verso la posizione del segmento precedente
-            for (i =1; i <=SNAKE_LENGTH_MAX-2 ; i = i + 1) begin
-            // Sposta ogni segmento del corpo alla posizione del segmento precedente
-                
-            if(i< snake_length-1)begin
-                    snake_body_x_reg[i] <= snake_body_x_reg[i-1];
-                    snake_body_y_reg[i] <= snake_body_y_reg[i-1];
-                    end
+                if (i < BEGIN_SNAKE_LENGTH-1'b1) begin
+                    snake_body_x_reg[i] <= BEGIN_SNAKE_HEAD_X-i-1'b1;
+                    snake_body_y_reg[i] <= BEGIN_SNAKE_HEAD_Y;
+                end
                 else begin
-                    snake_body_x_reg[i] <= snake_body_x_reg[i];
-                    snake_body_y_reg[i] <= snake_body_y_reg[i];
-            end
-        end		
-    end 
-
-    else if(en_fruit) begin
-        fruit_x <= new_position_x;
-        fruit_y <= new_position_y;
-            // Incrementa il punteggio quando il serpente mangia un frutto
-        if(score == 7'd99)
-            score <= 7'd0;      
-        else
-            score <= score + 1'b1; 
-
-        // Aumenta la lunghezza del serpente
-        if(snake_length == SNAKE_LENGTH_MAX-1'b1) 
-            snake_length <= snake_length;
-        else
-            snake_length <= snake_length + 1'b1;
-    end
-    
-
-    else if(generate_fruit) begin
-            if(collision_fruit)begin
-                fruit_x <= new_position_x;
-                fruit_y <= new_position_y;
+                    snake_body_x_reg[i] <= 7'b1111111;
+                    snake_body_y_reg[i] <= 7'b1111111;
                 end
-    end
-
-end
-
-
-//assegnazione bit fruit_eaten
-
-assign fruit_eaten = (fruit_x==snake_head_x && fruit_y == snake_head_y) ? 1'b1 : 1'b0;
-
-// Genera una nuova posizione per il frutto (random)
-
-PRBS random_sequence_x(
-    .clock_25(clock_25),
-    .reset(reset),
-    .initial_seed(7'b0011100),
-    .rnd(new_position_x)
-);
-
-PRBS random_sequence_y(
-    .clock_25(clock_25),
-    .reset(reset),
-    .initial_seed(7'b0110000),
-    .rnd(new_position_y)
-);
-
-//controllo di una collisione del nuovo frutto con il corpo del serpente o fuori dal game_area
-always @ (*) begin
-
-for (i=0; i <SNAKE_LENGTH_MAX -1  ; i=i+1)begin
-    if (fruit_x == snake_body_x_reg[i] && fruit_y== snake_body_y_reg[i])
-        fruit_vector[i] = 1'b1;
-    else 
-        fruit_vector[i] = 1'b0;
-   end
-end
-
-always @ (*) begin
-    if((fruit_x == snake_head_x && fruit_y== snake_head_y) || fruit_vector > 0 || 
-                (fruit_x >= HORIZONTAL_CELLS_NUM-1'b1) || fruit_y >= (VERTICAL_CELLS_NUM-1'b1) || (fruit_x <= 1) || (fruit_y<=1))
-        collision_fruit= 1'b1;
-        
-    else
-        collision_fruit = 1'b0;    
-end
-
-
-//collision detector           
-
-always @ (*) begin
-    for (j = 0; j < SNAKE_LENGTH_MAX-1'b1 ; j = j + 1'b1) begin
-        // Controlla se la testa del serpente e sulla stessa posizione di uno dei segmenti del corpo
-    if (snake_head_x == snake_body_x_reg[j] && snake_head_y == snake_body_y_reg[j])
-       collision_vector[j] = 1'b1; // Se la testa del serpente sul corpo, collisione
-    else 
-        collision_vector[j] = 1'b0;
-    end
-end
-
-always @ (*) begin
-    // Verifica se la testa del serpente fuori dai bordi
-    if ((snake_head_x == 0 &&  left==1) || (snake_head_x == (HORIZONTAL_CELLS_NUM) && right==1) ||
-            (snake_head_y == 0 && up== 1) || (snake_head_y ==( VERTICAL_CELLS_NUM) && down== 1))
-
-        collision_detected = 1'b1;    // Se la testa  fuori dalla griglia (fuori dai limiti), ritorna 1 (collisione)
+            end
     
-    else if(collision_vector > 0)   // Verifica se la testa del serpente ha colpito se stessa (ossia una posizione gia occupata dal corpo)
-        collision_detected = 1'b1;
-
-    else       
+        end
+    
+        else if(en_move==1'b1) begin                           
+            // Update the snake's head position based on input
+                if (up) begin
+                    if (snake_head_y > 0) begin
+                        snake_head_y <= snake_head_y - 1'b1;    // Move the snake up
+                        snake_head_x <= snake_head_x;
+                    end
+                end 
+                
+                else if (down) begin
+                    if (snake_head_y < VERTICAL_CELLS_NUM-1'b1) begin
+                        snake_head_y <= snake_head_y + 1'b1;    // Move the snake down
+                        snake_head_x <= snake_head_x;
+                    end
+                end 
+                
+                else if (left) begin
+                    if (snake_head_x > 0)  begin
+                        snake_head_x <= snake_head_x - 1'b1;    // Move the snake left
+                        snake_head_y <= snake_head_y;
+                    end
+                end 
+                
+                else if (right) begin
+                    if (snake_head_x < HORIZONTAL_CELLS_NUM-1'b1) begin
+                        snake_head_x <= snake_head_x + 1'b1;    // Move the snake right
+                        snake_head_y <= snake_head_y;
+                    end
+                end
+                
+                // Update the snake's body
+                    
+                    // The first body segment follows the snake's head
+                snake_body_x_reg[0] <= snake_head_x;
+                snake_body_y_reg[0] <= snake_head_y; 
+    
+                // The body moves by shifting each segment to the position of the previous segment
+                for (i =1; i <=SNAKE_LENGTH_MAX-2 ; i = i + 1) begin
+                    
+                if(i< snake_length-1)begin
+                        snake_body_x_reg[i] <= snake_body_x_reg[i-1];
+                        snake_body_y_reg[i] <= snake_body_y_reg[i-1];
+                end
+                    else begin
+                        snake_body_x_reg[i] <= snake_body_x_reg[i];
+                        snake_body_y_reg[i] <= snake_body_y_reg[i];
+                end
+            end		
+        end 
+    
+        else if(en_fruit) begin         //if the snake has eaten a fruit a new fruit position is assigned
+            fruit_x <= new_position_x;
+            fruit_y <= new_position_y;
+                // Increment the score when the snake eats a fruit
+            if(score == 7'd99)
+                score <= 7'd0;      
+            else
+                score <= score + 1'b1; 
+    
+            // Increase the snake's length
+            if(snake_length == SNAKE_LENGTH_MAX-1'b1) 
+                snake_length <= snake_length;
+            else
+                snake_length <= snake_length + 1'b1;
+        end
         
-        collision_detected = 0; // Inizialmente, nessuna collisione      
-end
+    
+        else if(generate_fruit) begin       //it only assign a new fruit position
+                if(collision_fruit)begin
+                    fruit_x <= new_position_x;
+                    fruit_y <= new_position_y;
+                end
+        end
+    
+    end
+    
+    
+    // Assignment of the fruit_eaten bit
+    
+    assign fruit_eaten = (fruit_x==snake_head_x && fruit_y == snake_head_y) ? 1'b1 : 1'b0;
+    
+    // Generate a new position for the fruit (random)
+    
+    PRBS random_sequence_x(
+        .clock_25(clock_25),
+        .reset(reset),
+        .initial_seed(7'b0011100),
+        .rnd(new_position_x)
+    );
+    
+    PRBS random_sequence_y(
+        .clock_25(clock_25),
+        .reset(reset),
+        .initial_seed(7'b0110000),
+        .rnd(new_position_y)
+    );
+    
+// Check if the new fruit collides with the snake's body or is outside the game area
+    always @ (*) begin
+        for (i = 0; i < SNAKE_LENGTH_MAX - 1; i = i + 1) begin
+            if (fruit_x == snake_body_x_reg[i] && fruit_y == snake_body_y_reg[i])
+                fruit_vector[i] = 1'b1;
+            else 
+                fruit_vector[i] = 1'b0;
+        end
+    end
+    
+    always @ (*) begin
+        if((fruit_x == snake_head_x && fruit_y == snake_head_y) || fruit_vector > 0 || 
+           (fruit_x >= HORIZONTAL_CELLS_NUM - 1'b1) || (fruit_y >= VERTICAL_CELLS_NUM - 1'b1) || 
+           (fruit_x <= 1) || (fruit_y <= 1))
+            collision_fruit = 1'b1;
+        else
+            collision_fruit = 1'b0;    
+    end
+    
+    
+    // Collision detector           
+    always @ (*) begin
+        for (j = 0; j < SNAKE_LENGTH_MAX - 1'b1; j = j + 1'b1) begin
+            // Check if the snake's head is at the same position as one of the body segments
+            if (snake_head_x == snake_body_x_reg[j] && snake_head_y == snake_body_y_reg[j])
+                collision_vector[j] = 1'b1; // If the snake's head is on its body, collision detected
+            else 
+                collision_vector[j] = 1'b0;
+        end
+    end
+    
+    always @ (*) begin
+        // Check if the snake's head is outside the game boundaries
+        if ((snake_head_x == 1 && left == 1) || (snake_head_x == HORIZONTAL_CELLS_NUM && right == 1) ||
+            (snake_head_y == 1 && up == 1) || (snake_head_y == VERTICAL_CELLS_NUM && down == 1))
+    
+            collision_detected = 1'b1; // If the head is outside the grid (out of bounds), return 1 (collision)
+        
+        else if (collision_vector > 0) // Check if the snake's head has hit its body 
+            collision_detected = 1'b1;
+        
+        else        
+            collision_detected = 0; // Initially, no collision detected      
+    end
+    
 
+// Synchronizes asynchronous button presses on the input positive edge, generating a high-active synchronous pulse for one clock cycle
 
+// right_P
     always @ (posedge clock_25 or negedge reset ) begin
 
-    if (~reset) begin
-        right_shifter <= 2'b00;
-        right_sync <= 1'b0;
-    end
-    else begin
-        right_shifter <= { right_shifter[0], right_P};
-        if (right_shifter[0]==1'b1 && right_shifter[1]==1'b0) 
-            right_sync<=1'b1;
-        else
-            right_sync<=1'b0;       
-    end
-    
-end
-
-always @ (posedge clock_25 or negedge reset ) begin
-
-    if (~reset) begin
-        left_shifter <= 2'b00;
-        left_sync <= 1'b0;
-    end
-    else begin
-        left_shifter <= { left_shifter[0], left_P};
-        if (left_shifter[0]==1'b1 && left_shifter[1]==1'b0) 
-            left_sync<=1'b1;
-        else
-            left_sync<=1'b0;       
+        if (~reset) begin
+            right_shifter <= 2'b00;
+            right_sync <= 1'b0;
+        end
+        else begin
+            right_shifter <= { right_shifter[0], right_P};
+            if (right_shifter[0]==1'b1 && right_shifter[1]==1'b0) 
+                right_sync<=1'b1;
+            else
+                right_sync<=1'b0;       
+        end
     end
     
-end
-
-//Definisco right_register e left_register che assumeranno il valore degli input right_sync e left_sync
-// fino al completamento della mossa successiva, ovvero fino all'ingresso nello stato move_done.
-always @ (posedge clock_25 or negedge reset) begin 
-
-    if (~reset) begin
-        right_register <= 1'b0;
-        left_register <= 1'b0;
+    // left_P
+    always @ (posedge clock_25 or negedge reset ) begin
+    
+        if (~reset) begin
+            left_shifter <= 2'b00;
+            left_sync <= 1'b0;
+        end
+        else begin
+            left_shifter <= { left_shifter[0], left_P};
+            if (left_shifter[0]==1'b1 && left_shifter[1]==1'b0) 
+                left_sync<=1'b1;
+            else
+                left_sync<=1'b0;       
+        end
     end
-        
-    else if (sync_reset) begin
-         right_register <= 1'b0;
-        left_register <= 1'b0;
-    end
-        
-    else if(send==1'b0 && (right_sync==1'b1 || left_sync==1'b1)) begin   //se l'utente preme il pulsante i registri vengono aggiornati
-        if(right_sync==1'b1 && left_sync==1'b1 ) begin   //controllo se utente preme entrambi pulsanti, il serpente non cambia
+    
+    // assign right_register and left_register that will take the value of right_sync and left_sync inputs 
+    // until the next move is completed, that is, until entering the move_done state.
+    always @ (posedge clock_25 or negedge reset) begin 
+    
+        if (~reset) begin
             right_register <= 1'b0;
             left_register <= 1'b0;
-        end 
-        else begin
-            right_register <= right_sync;
-            left_register <= left_sync;
         end
-    end
-    else if(en_move==1'b1) begin        //al termine della mossa i registri tornano ad 0
-        right_register <= 1'b0;
-        left_register <= 1'b0;
-    end
-    else begin
-        right_register <= right_register;
-        left_register <= left_register;
-    end 
-end
-
-
-//converte l'input nelle direzioni effettive dello snake 
-always @ (posedge clock_25 or negedge reset) begin 
-
-    if (~reset) begin
-        down <= 1'b0;
-        up <= 1'b0;
-        right <= 1'b1; //il gioco inizia che il serpente si muove verso destra
-        left <= 1'b0;
-    end
-        
+            
         else if (sync_reset) begin
-        down <= 1'b0;
-        up <= 1'b0;
-        right <= 1'b1; //il gioco inizia che il serpente si muove verso destra
-        left <= 1'b0;
+             right_register <= 1'b0;
+            left_register <= 1'b0;
+        end
+            
+        else if(send==1'b0 && (right_sync==1'b1 || left_sync==1'b1)) begin   // If the user presses a button, registers are updated
+            if(right_sync==1'b1 && left_sync==1'b1 ) begin   // If the user presses both buttons, the snake does not change direction
+                right_register <= 1'b0;
+                left_register <= 1'b0;
+            end 
+            else begin
+                right_register <= right_sync;
+                left_register <= left_sync;
+            end
+        end
+        else if(en_move==1'b1) begin        // At the end of the move, registers return to 0
+            right_register <= 1'b0;
+            left_register <= 1'b0;
+        end
+        else begin
+            right_register <= right_register;
+            left_register <= left_register;
+        end 
     end
     
-    // se ho premuto uno dei pulsanti modifico le direzioni
-    else if (right_register==1'b1 || left_register==1'b1) begin 
-        
-        if (snake_head_y == snake_body_y_reg[0] && snake_head_x > snake_body_x_reg[0]) begin
-        down <= right_register;  
-        up <= left_register;
-        right <= 1'b0;
-        left <= 1'b0;
-
-        end
-
-        else if (snake_head_y == snake_body_y_reg[0] && snake_head_x < snake_body_x_reg[0]) begin 
-        down <= left_register;  
-        up <= right_register;
-        right <= 1'b0;
-        left <= 1'b0;
-        
-
-        end
-
-        else if (snake_head_x == snake_body_x_reg[0] && snake_head_y < snake_body_y_reg[0]) begin 
-            right <= right_register;  
-            left <= left_register;
+    // Converts the input into the actual snake movement directions
+    always @ (posedge clock_25 or negedge reset) begin 
+    
+        if (~reset) begin
+            down <= 1'b0;
             up <= 1'b0;
+            right <= 1'b1; // The game starts with the snake moving to the right
+            left <= 1'b0;
+        end
+            
+        else if (sync_reset) begin
             down <= 1'b0;
+            up <= 1'b0;
+            right <= 1'b1; 
+            left <= 1'b0;
+        end
+        
+        // If a button is pressed, modify the movement direction
+        else if (right_register==1'b1 || left_register==1'b1) begin 
+            
+            if (snake_head_y == snake_body_y_reg[0] && snake_head_x > snake_body_x_reg[0]) begin
+            down <= right_register;  
+            up <= left_register;
+            right <= 1'b0;
+            left <= 1'b0;
+            end
     
+            else if (snake_head_y == snake_body_y_reg[0] && snake_head_x < snake_body_x_reg[0]) begin 
+            down <= left_register;  
+            up <= right_register;
+            right <= 1'b0;
+            left <= 1'b0;
+            end
+    
+            else if (snake_head_x == snake_body_x_reg[0] && snake_head_y < snake_body_y_reg[0]) begin 
+                right <= right_register;  
+                left <= left_register;
+                up <= 1'b0;
+                down <= 1'b0;
+            end
+    
+            else if (snake_head_x == snake_body_x_reg[0] && snake_head_y > snake_body_y_reg[0]) begin 
+                right <= left_register;  
+                left <= right_register;
+                up <= 1'b0; 
+                down <= 1'b0;
+            end
         end
-
-        else if (snake_head_x == snake_body_x_reg[0] && snake_head_y > snake_body_y_reg[0]) begin 
-
-            right <= left_register;  
-            left <= right_register;
-            up <= 1'b0; 
-            down <= 1'b0;
+        else begin              // If no button is pressed, maintain the current movement
+            right <= right;
+            left <= left;
+            up <= up;
+            down <= down;
         end
     end
-    else begin              //se non premo alcun pulsante, mantiene il movimento
-        right <= right;
-        left <= left;
-        up <= up;
-        down <= down;
+    
+    // Assign up_tail, down_tail, left_tail, right_tail for the correct print in graphic_game of the tail when the snake turns 
+    
+    always @(posedge clock_25 or negedge reset) begin       //assign tail_count which comunicate to the tail when change direction when it arrivs to snake_length-2
+        if (~reset)
+            tail_count <= 0;
+    
+        else if(sync_reset)
+            tail_count <= 0;
+        
+        else if (down == down_tail && up == up_tail && right == right_tail && left == left_tail)
+            tail_count <= 0;
+    
+        else if (en_move == 1'b1)
+            tail_count <= tail_count +1;
+    
+        else 
+            tail_count <= tail_count;
     end
-        
-        
-    end     
-endmodule
+    
+    always @(posedge clock_25 or negedge reset) begin
+        if (~reset) begin
+            up_tail<=1'b0;
+            down_tail<=1'b0;
+            left_tail<= 1'b0;
+            right_tail<=1'b1;
+       end
+       else if (sync_reset) begin
+            up_tail<=1'b0;
+            down_tail<=1'b0;
+            left_tail<= 1'b0;
+            right_tail<=1'b1;
+       end
+       else if(tail_count == snake_length-2) begin
+            up_tail<=up;
+            down_tail<=down;
+            left_tail<= left;
+            right_tail<=right;
+       end
+       else begin
+            up_tail<=up_tail;
+            down_tail<=down_tail;
+            left_tail<= left_tail;
+            right_tail<=right_tail;
+       end
+    end
+    endmodule
+    
 
 
 

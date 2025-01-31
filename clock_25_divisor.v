@@ -1,4 +1,4 @@
-module clock_25_divisor (clk_in,reset, clock_25 );  
+module clock_25_divisor (clk_in,reset, clock_25 );  //clock diviors which will be used for the whole achitecture
 output clock_25;
 input clk_in,reset;
 parameter dimension = 1;

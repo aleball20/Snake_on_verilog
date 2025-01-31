@@ -1,3 +1,11 @@
+/* To allow reading symbols from graphic game, the cells are 5x5 pixels in size. Therefore,each pixel is described by 2 bits in order
+to choose a color, therefore each symbol consists of 50 bits.
+As a result, each figure is represented using 50 bits (2 bits per pixel). The reading process starts
+with the 2  MSBs representing pixel in the matrix position [1][1], then proceeds to read the next pixel [2][1],
+and so on. The output is  all the sybol word which will go to graphic game */
+
+
+
 module symbol (clock_25, selected_figure, selected_symbol);
 
 input clock_25;

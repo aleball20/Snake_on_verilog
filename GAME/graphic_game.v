@@ -2,7 +2,7 @@
 game_enable and the color_data to the VGA_controller. To do this it reads the ROM "symbols" and tells how to color the selected pixel*/
 
 module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y,
-                 fruit_x, fruit_y, left, right, up, down, selected_symbol, snake_length, game_enable, color_data, selected_figure);
+                 fruit_x, fruit_y, left, right, up, down, left_tail, right_tail, up_tail, down_tail, selected_symbol, snake_length, game_enable, color_data, selected_figure);
 
     parameter PIXEL_DISPLAY_BIT = 9;
     parameter SNAKE_LENGTH_BIT = 7;
@@ -39,14 +39,15 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
     input [6:0] fruit_x, fruit_y;                               // fruit registers
     input [SNAKE_LENGTH_BIT-1:0] snake_length;                  //snake's current legth
     input [49:0] selected_symbol;                                //selected Symbol's value from Symbols ROM, each 2 bit a color of a pixel
-    input up, down, left, right;                                 //Snake direction, for undestanding in which direction head and tail have to be printed
+    input up, down, left, right;                                 //Snake head direction, for undestanding in which direction head and tail have to be printed
+    input left_tail, right_tail, up_tail, down_tail;            // Snake tail direction
 
     output game_enable;                                     // it activate the VGA controller to print
     output reg [1:0] color_data;                                 // Comunicates the pixel's color to print 
     output reg [3:0] selected_figure;                            // output for the Symbols ROM and comunicate which symbol have to back (head, body, fruit or tail)
 
 
-    wire [5:0] pixel_index;								            // index of the pixel inside a block (from 0 to 24)
+    wire [5:0] pixel_index;								            // index of the pixel inside a block (from 0 to 49)
     wire game_area;                                                 //playing game's area
     reg addr_enable;
     reg [1:0]game_enable_vect;
@@ -175,10 +176,8 @@ always @(posedge clock_25 or negedge reset) begin
             y_local_advance <=3'b000;
         end
     end
-   
 
-
-    ///assigning the figure (head, tail, fruit or body) to the corresponding block
+    //assigning the figure (head, tail, fruit or body) to the corresponding block
     
     always @(*) begin
         body_found=1'b0;
@@ -189,8 +188,6 @@ always @(posedge clock_25 or negedge reset) begin
             end                 
         end
     end
-
-   
 
     always @(posedge clock_25 or negedge reset) begin
 
@@ -230,22 +227,22 @@ always @(posedge clock_25 or negedge reset) begin
             end
 
             else if ((x_block_advance == snake_body_x_reg[snake_length-1]) && (y_block_advance == snake_body_y_reg[snake_length-1])) begin  //tail check and assigment of the corrisponding direction of the tail
-                if(up)begin
+                if(up_tail)begin
                 addr_enable <= 1'b1; 
                 selected_figure <= TAIL_UP;
                 end
 
-                else if(down)begin
+                else if(down_tail)begin
                 addr_enable <= 1'b1; 
                 selected_figure <= TAIL_DOWN;
                 end
 
-                else if(right)begin
+                else if(right_tail)begin
                 addr_enable <= 1'b1; 
                 selected_figure <= TAIL_RIGTH;
                 end
 
-                else if(left)begin
+                else if(left_tail)begin
                 addr_enable <= 1'b1; 
                 selected_figure <= TAIL_LEFT;
                 end
@@ -275,7 +272,7 @@ always @(posedge clock_25 or negedge reset) begin
 
     assign game_enable = game_enable_vect[1];
 
-    assign pixel_index = y_local * 10 + x_local * 2;  //pixel index has the value of the pixel position of the current block 
+    assign pixel_index = y_local * 10 + x_local * 2 ;  //pixel index has the value of the pixel position of the current block 
 	 
 	always @ (posedge clock_25 or negedge reset) begin
 	 

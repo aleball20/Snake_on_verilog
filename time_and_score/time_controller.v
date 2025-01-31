@@ -44,7 +44,7 @@ always @ (posedge clock_25 or negedge reset) begin
          en_time <= 1'b0;
     end
 
-//time_enable is delayed of 2 colcks cycle, therefore the time_count can be incremented until 2 varibles before
+//time_enable is delayed of 2 colcks cycle, therefore the time_count is incremented 2 varibles before
     else begin 
         if(X >= 178 && X <= 190) begin //writes the cent
             selected_time_number <= cent;

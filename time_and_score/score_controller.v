@@ -1,3 +1,5 @@
+/*It manage the numbers score print, reading the ROM numbers and printing valeus at the correct time*/
+
 module score_controller (clock_25, reset, sync_reset, score, X,Y, selected_score_number, score_count, en_score );
 
 
@@ -17,7 +19,7 @@ output reg en_score;
 
 reg [PIXEL_DISPLAY_BIT:0] Y_prev;
 reg [6:0] score_prev;
-reg [3:0]residual;
+reg [3:0]residual;      //residual is a counter which is incremented every new Y row inside the the number space
 reg [3:0]dec, unit;
 
 always @ (posedge clock_25 or negedge reset) begin
@@ -43,9 +45,9 @@ always @ (posedge clock_25 or negedge reset) begin
         Y_prev <=  10'd466;
         en_score <= 1'b0;
    end
-
+//score_enable is delayed of 2 colcks cycle, therefore the score_count is incremented 2 varibles before
    else begin
-         if(X >= 447 && X <= 459) begin //scrivo la decina
+         if(X >= 447 && X <= 459) begin //printing decs
             selected_score_number <= dec;
             if(X> 447 && X<458) begin
             en_score <= 1'b1;
@@ -55,7 +57,7 @@ always @ (posedge clock_25 or negedge reset) begin
                en_score <= 1'b0;
 			end
 
-         else if (X >= 462 && X <= 474) begin // scrivo l'unitÃ 
+         else if (X >= 462 && X <= 474) begin // printing units 
             selected_score_number <= unit;
             if(X>462 && X<473) begin
             en_score <= 1'b1;

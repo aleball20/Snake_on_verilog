@@ -1,3 +1,5 @@
+/*ROM for printing the name TIME: and SCORE:*/
+
 module rom_background (x_count ,y_count, data, clock_25);
 input [7:0] x_count;
 input [3:0] y_count;

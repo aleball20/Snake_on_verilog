@@ -20,7 +20,7 @@ reg[3:0] y_count;
 reg [7:0]x_count;
 reg datarom;
 
-/*define the game screen 620x405. It starts at the pixel X=58, Y=43 */ 
+/*define the game walls 620x405. It starts at the pixel X=58, Y=43 */ 
 
 assign rectangle_1 = (X > 52  && X < 681 && Y> 37 && Y < 43);     //on top
 assign rectangle_2 = (X > 52 && X < 58 && Y> 37 && Y < 451);      //on the left
@@ -43,18 +43,18 @@ always @ (posedge clock_25 or negedge reset) begin
        x_count<= 8'b00000000;
     end
     else begin
-        y_count <= Y- 460; //assegno a y_count i 16 valori possibili fino a 475
+        y_count <= Y- 460; // assign to y_count the 16 possible values until 475
 		  
-        if(X >=108 && X <= 170)begin //scrivo TIME:
+        if(X >=108 && X <= 170)begin // printing TIME:
             x_count <= X - 108;
             datarom <= data;
         end
-		   else if(X >= 362 && X <= 442) begin //scrivo SCORE:
+		   else if(X >= 362 && X <= 442) begin //printing SCORE:
             x_count <= X - 300; //it start to read from score word (362-62) with 62 lenght of "time"
             datarom <= data;
         end
         
-        else begin //non scrivo nulla
+        else begin //nothing is written
             x_count <= 8'b00000000;
             datarom <= 1'b0;
         end
