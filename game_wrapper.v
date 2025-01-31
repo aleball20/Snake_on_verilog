@@ -18,7 +18,7 @@ wire [6:0] score;
 wire [PIXEL_DISPLAY_BIT-1'b1:0] X, Y;
 wire [SNAKE_LENGTH_BIT-1:0] snake_length; 
 wire game_tik, frame_tik;                                 
-wire reset;
+wire async_reset, reset;
 wire game_enable; 
 wire [SNAKE_LENGTH_BIT-1:0] body_count;
 wire display_area;
@@ -50,10 +50,15 @@ assign number_count = score_count | time_count;
 assign VGA_BLANK=1'b1;
 assign VGA_SYNC= 1'b0;
 assign VGA_CLK= clock_25;
-assign reset = KEY0;
+assign async_reset = KEY0;
 
 clock_25_divisor my_frequency_25MHz(
 .clk_in(CLOCK_50),
+.clock_25(clock_25)
+);
+
+global_reset my_global_reset(
+.async_reset(async_reset),
 .reset(reset),
 .clock_25(clock_25)
 );

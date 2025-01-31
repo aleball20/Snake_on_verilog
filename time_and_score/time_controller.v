@@ -1,3 +1,6 @@
+
+/*It manage the numbers time print, reading the ROM numbers and printing valeus at the correct time*/
+
 module time_controller(clock_25, reset, sync_reset, time_tik, selected_time_number, time_count, en_time, X, Y);
 
 
@@ -6,7 +9,7 @@ parameter PIXEL_DISPLAY_BIT   = 9;
 input clock_25;
 input reset;
 input sync_reset;
-input time_tik;
+input time_tik;                         //tik se to one every second
 input [PIXEL_DISPLAY_BIT:0] X,Y;
 
 output reg [3:0] selected_time_number;
