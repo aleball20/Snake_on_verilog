@@ -62,7 +62,7 @@ reg [SNAKE_LENGTH_BIT-1:0] snake_length;
 reg [6:0] fruit_x, fruit_y;
 reg up, down, left, right;
 
-reg right_sync, left_sync;
+wire right_sync, left_sync;
 reg right_register, left_register;
 reg [1:0]right_shifter, left_shifter;
 
@@ -495,40 +495,25 @@ always @(current_state)
     end
     
 
-// Synchronizes asynchronous button presses on the input positive edge, generating a high-active synchronous pulse for one clock cycle
+// Synchronizes asynchronous button presses on the input positive edge, avoiding bounces, generating a high-active synchronous pulse for one clock cycle
 
 // right_P
-    always @ (posedge clock_25 or negedge reset ) begin
-
-        if (~reset) begin
-            right_shifter <= 2'b00;
-            right_sync <= 1'b0;
-        end
-        else begin
-            right_shifter <= { right_shifter[0], right_P};
-            if (right_shifter[0]==1'b1 && right_shifter[1]==1'b0) 
-                right_sync<=1'b1;
-            else
-                right_sync<=1'b0;       
-        end
-    end
+   buttom_control_fsm my_button_control_fsm_1(
+    .reset(reset), 
+    .clock_25(clock_25),
+    .async_buttom(right_P), 
+    .sync_buttom(right_sync),
+    .en_rise(1'b1)
+   );
     
     // left_P
-    always @ (posedge clock_25 or negedge reset ) begin
-    
-        if (~reset) begin
-            left_shifter <= 2'b00;
-            left_sync <= 1'b0;
-        end
-        else begin
-            left_shifter <= { left_shifter[0], left_P};
-            if (left_shifter[0]==1'b1 && left_shifter[1]==1'b0) 
-                left_sync<=1'b1;
-            else
-                left_sync<=1'b0;       
-        end
-    end
-    
+   buttom_control_fsm my_button_control_fsm_2(
+    .reset(reset), 
+    .clock_25(clock_25),
+    .async_buttom(left_P), 
+    .sync_buttom(left_sync),
+    .en_rise(1'b1)
+   );
     // assign right_register and left_register that will take the value of right_sync and left_sync inputs 
     // until the next move is completed, that is, until entering the move_done state.
     always @ (posedge clock_25 or negedge reset) begin 

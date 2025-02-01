@@ -32,7 +32,7 @@ module graphic_game (reset, clock_25, X, Y, snake_head_x, body_count, snake_head
 
     input reset;                                                // asyncronus reset
     input clock_25;                                              // 25 MHz clock
-    input [SNAKE_LENGTH_BIT-1:0] body_count;                    //contuer from snake_game_FSM for building the snake_body
+    input [SNAKE_LENGTH_BIT-1:0] body_count;                    //counter from snake_game_FSM for building the snake_body
     input [PIXEL_DISPLAY_BIT:0] X, Y;                           // global coordinates from VGA_traker
     input [6:0] snake_head_x, snake_head_y;                       //  head of the snake registers
     input [6:0] snake_body_x, snake_body_y;                        //body of the snake registers

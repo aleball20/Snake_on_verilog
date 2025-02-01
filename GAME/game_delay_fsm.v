@@ -15,6 +15,34 @@ output reg game_tik;
 
 reg [3:0] current_state; 
 reg [3:0] next_state;
+wire sync_SW17, sync_SW16, sync_SW15;
+
+
+//syncornization of the switches avoiding bouncing
+
+buttom_control_fsm my_buttom_control_fsm_1(
+    .reset(reset), 
+    .clock_25(clock_25),
+    .async_buttom(SW17), 
+    .sync_buttom(sync_SW17),
+    .en_rise(1'b0) //keeps value
+   );
+
+   buttom_control_fsm my_buttom_control_fsm_2(
+    .reset(reset), 
+    .clock_25(clock_25),
+    .async_buttom(SW16), 
+    .sync_buttom(sync_SW16),
+    .en_rise(1'b0)
+   );
+
+   buttom_control_fsm my_buttom_control_fsm_3(
+    .reset(reset), 
+    .clock_25(clock_25),
+    .async_buttom(SW15), 
+    .sync_buttom(sync_SW15),
+    .en_rise(1'b0)
+   );
 
 //fsm states:
 
@@ -31,7 +59,7 @@ parameter  WAIT_END_4= 4'b0111;
 parameter  GAME_TIK_GEN = 4'b1000;  //it is also the level 4
 
 
-//register for Moore's machine
+//registers for Moore's machine
 
 always @(posedge clock_25 or negedge reset)
 
@@ -56,16 +84,16 @@ always @(*) begin       //combinatory network for deciding the next states
             if (start == 1'b0)
                 next_state = IDLE;
 
-            else if(SW17== 1'b0 && SW16 == 1'b0 && SW15 == 1'b0)
+            else if(sync_SW17== 1'b0 && sync_SW16 == 1'b0 && sync_SW15 == 1'b0)
                 next_state = LEVEL_1;
             
-            else if(SW17 == 1'b1 && SW16 == 1'b0 && SW15 == 1'b0)
+            else if(sync_SW17 == 1'b1 && sync_SW16 == 1'b0 && sync_SW15 == 1'b0)
                 next_state = LEVEL_2;
             
-            else if(SW16 == 1'b1 && SW15 == 1'b0)
+            else if(sync_SW16 == 1'b1 && sync_SW15 == 1'b0)
                 next_state = LEVEL_3;
             
-            else if(SW15 == 1'b1)
+            else if(sync_SW15 == 1'b1)
                 next_state = LEVEL_4;
             else
                 next_state = LEVEL_1;
