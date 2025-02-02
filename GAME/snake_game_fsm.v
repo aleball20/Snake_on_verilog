@@ -462,7 +462,7 @@ always @(current_state)
     always @ (*) begin
         if((fruit_x == snake_head_x && fruit_y == snake_head_y) || fruit_vector > 0 || 
            (fruit_x >= HORIZONTAL_CELLS_NUM - 1'b1) || (fruit_y >= VERTICAL_CELLS_NUM - 1'b1) || 
-           (fruit_x <= 1) || (fruit_y <= 1))
+           (fruit_x == 0) || (fruit_y == 0))
             collision_fruit = 1'b1;
         else
             collision_fruit = 1'b0;    
@@ -482,8 +482,8 @@ always @(current_state)
     
     always @ (*) begin
         // Check if the snake's head is outside the game boundaries
-        if ((snake_head_x == 1 && left == 1) || (snake_head_x == HORIZONTAL_CELLS_NUM && right == 1) ||
-            (snake_head_y == 1 && up == 1) || (snake_head_y == VERTICAL_CELLS_NUM && down == 1))
+        if ((snake_head_x == 0 && left == 1) || (snake_head_x == HORIZONTAL_CELLS_NUM-1 && right == 1) ||
+            (snake_head_y == 0 && up == 1) || (snake_head_y == VERTICAL_CELLS_NUM-1 && down == 1))
     
             collision_detected = 1'b1; // If the head is outside the grid (out of bounds), return 1 (collision)
         

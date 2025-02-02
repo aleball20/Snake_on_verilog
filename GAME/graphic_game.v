@@ -91,7 +91,7 @@ always @(posedge clock_25 or negedge reset) begin
     else if((Y>=Y_off) && (Y<=Y_fin))
         
                     if((X>=X_off) && (X<=X_fin)) begin
-                        if(X>=BLOCK_SIZE * x_block + X_off) begin 
+                        if(X>=BLOCK_SIZE * x_block + X_off+4) begin 
                             x_block <= x_block +1'b1;
                             x_local <=3'b000;
                         end
@@ -99,7 +99,7 @@ always @(posedge clock_25 or negedge reset) begin
                             x_local <=x_local +1'b1;
                     end
                     
-                    else if(X==799 && (Y>=BLOCK_SIZE * y_block + Y_off) ) begin
+                    else if(X==799 && (Y>=BLOCK_SIZE * y_block + Y_off+4) ) begin
                         
                             y_block <= y_block +1'b1;
                             y_local <=3'b000;
@@ -143,7 +143,7 @@ always @(posedge clock_25 or negedge reset) begin
         else if((Y>=Y_off) && (Y<=Y_fin))
 		  
 						if((X>=X_off-2) && (X<=X_fin-2)) begin
-							if(X>=BLOCK_SIZE * x_block_advance + X_off-2) begin 
+							if(X>=BLOCK_SIZE * x_block_advance + X_off-2+4) begin 
 								x_block_advance <= x_block_advance +1'b1;
 								x_local_advance <=3'b000;
 							end
@@ -151,7 +151,7 @@ always @(posedge clock_25 or negedge reset) begin
 								x_local_advance <=x_local_advance +1'b1;
 						end
 
-						else if(X==797 && (Y>=BLOCK_SIZE * y_block_advance + Y_off) ) begin					  
+						else if(X==797 && (Y>=BLOCK_SIZE * y_block_advance + Y_off+4) ) begin					  
                                 y_block_advance <= y_block_advance +1'b1;
                                 y_local_advance <=3'b000;
                                 x_block_advance <= 7'b0000000;
