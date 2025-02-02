@@ -1,24 +1,34 @@
 /* This module is a copy of "graphic_game", we used it for testbanch*/
 
-module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, snake_length, game_area, game_enable, color_data, selected_figure, semaforo);
+module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_25, X, Y, snake_head_x, body_count, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y, selected_symbol, snake_length, game_area, game_enable, color_data, selected_figure,
+body_found, up, down, left, right, left_tail, right_tail, up_tail, down_tail);
 
     parameter PIXEL_DISPLAY_BIT   = 9;
     parameter SNAKE_LENGTH_BIT    = 4;
     parameter SNAKE_LENGTH_MAX    =16;
 
-    // Costanti per i tipi di figura
-    parameter HEAD = 2'b00;
-    parameter BODY = 2'b01;
-    parameter TAIL = 2'b10;
-    parameter FRUIT = 2'b11;
+    parameter HEAD_RIGTH = 4'b0000;
+    parameter HEAD_UP = 4'b0001;
+    parameter HEAD_LEFT = 4'b0010;
+    parameter HEAD_DOWN = 4'b0011;
+    parameter BODY = 4'b0100;
+    parameter TAIL_RIGTH = 4'b0101;
+    parameter TAIL_UP = 4'b0110;
+    parameter TAIL_LEFT = 4'b0111;
+    parameter TAIL_DOWN = 4'b1000;
+    parameter FRUIT =4'b1001;
 
-    parameter X_off = 58;      // posizione (0,0) all'interno del rettangolo di gioco
+    // position (0,0) of the cells
+    parameter X_off = 58;      
     parameter Y_off = 43; 
-    parameter X_fin = X_off + 124 * 5;
-    parameter Y_fin = Y_off + 81 * 5;
+    //posotion(123,80) of the cells
+    parameter X_fin = X_off + 124 * 5 -1; //677
+    parameter Y_fin = Y_off + 81 * 5 -1; //447
+
 
 
     parameter BLOCK_SIZE = 5;   // Dimensione di ciascun blocco in pixel
+
 
     input reset;                                                // Segnale di reset
     input clock_25;                                              // Clock a 25 MHz
@@ -29,16 +39,21 @@ module graphic_game_for_test (x_block, y_block, x_local, y_local, reset, clock_2
     input [6:0] fruit_x, fruit_y;                               // Coordinate del frutto
     input [SNAKE_LENGTH_BIT-1:0] snake_length;               // Lunghezza del serpente (quanti segmenti ha)
     input [49:0] selected_symbol;                                // Colore del pixel in ingresso (2 bit)
+    input up, down, left, right;                                 //Snake head direction, for undestanding in which direction head and tail have to be printed
+    input left_tail, right_tail, up_tail, down_tail;            // Snake tail direction
 
-    output reg game_enable;                                     // Output: attiva il pixel
+
+    output  game_enable;                                     // Output: attiva il pixel
     output reg [1:0] color_data;                                 // Output: colore del pixel corrente
     output reg [1:0] selected_figure;                            // Output: tipo di figura (testa, corpo, coda, frutto)
+    reg addr_enable;
 
 
     output game_area; //playing game's area
-    assign game_area = (X>=58 && X<=678 && Y >= 43 && Y <= 448) ? 1'b1 : 1'b0;  
 
-    output reg semaforo;
+     reg [1:0]game_enable_vect;
+	output reg body_found;
+    
     
     //definisco cotnatori all'interno del blocco
     output reg  [6:0] x_block, y_block;    //contatori lungo x e y dei blocchi di gioco
@@ -50,10 +65,6 @@ integer i=0;
 assign game_area = (X>=X_off && X<= X_fin && Y >= Y_off && Y <= Y_fin) ? 1'b1 : 1'b0;  
                               //683                 //452
 
-
-//define counters of the block
-reg  [6:0] x_block, y_block;    //x and y counter for block's game (each block is 5x5 pixels)
-reg [2:0] x_local, y_local;    //x and y counte which indicates the pixel index  in the current block
 
 
 //reconstruction of the bodysnake matrix.

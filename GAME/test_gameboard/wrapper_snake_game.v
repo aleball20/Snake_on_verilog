@@ -1,7 +1,7 @@
 /*wrapper for the testbanch*/
 
-module wrapper_snake_game(score_count, selected_score_number, en_score, en_time,  time_tik, selected_time_number, time_count, number_pixel, collision_fruit, sync_reset, fruit_eaten, start, game_over, body_count, collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, frame_tik, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
-                            snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y);
+module wrapper_snake_game(score_count, selected_score_number, en_score, en_time,  time_tik, selected_time_number, time_count, number_pixel, collision_fruit, sync_reset, fruit_eaten, start, game_over, body_count, collision_detected, clock_25, right_sync, left_sync, right_register, left_register, right, left, down, up, game_tik ,current_state, next_state, right_P, left_P, snake_head_x, snake_head_y, snake_body_x, 
+                            right_tail, left_tail, up_tail, down_tail, snake_body_y, fruit_x, fruit_y, snake_length, score, display_area, VGA_HS, VGA_VS, reset, X, Y);
 
 parameter PIXEL_DISPLAY_BIT = 9;
 parameter SNAKE_LENGTH_BIT = 7;									 
@@ -13,7 +13,6 @@ output[PIXEL_DISPLAY_BIT:0] X,Y;
 output [6:0] snake_head_x, snake_head_y, snake_body_x, snake_body_y, fruit_x, fruit_y;
 output [SNAKE_LENGTH_BIT-1:0] snake_length;
 output VGA_HS, VGA_VS;
-output frame_tik; 
 output sync_reset;
 
 output collision_fruit, fruit_eaten, start, game_over;
@@ -23,6 +22,7 @@ output collision_detected;
 output [6:0] score;   
 output [2:0] current_state, next_state;
 output right, left, up, down, right_sync, left_sync, right_register, left_register;
+output right_tail, left_tail, up_tail, down_tail;
 output [SNAKE_LENGTH_BIT-1:0]body_count;
 
 output number_pixel;
@@ -30,6 +30,8 @@ output en_time, en_score;
 output [3:0] selected_time_number, selected_score_number;
 output [7:0] time_count, score_count;
 output time_tik;
+
+wire frame_tik; 
 
 snake_game_fsm_for_test my_snake_game_fsm_for_test(
     .clock_25(clock_25),
@@ -52,6 +54,10 @@ snake_game_fsm_for_test my_snake_game_fsm_for_test(
     .left(left),
     .up(up),
     .down(down),
+	 .up_tail(up_tail), 
+	.down_tail(down_tail), 
+	.left_tail(left_tail), 
+	.right_tail(right_tail),
 	 .right_sync(right_sync),
 	 .left_sync(left_sync),
 	 .right_register(right_register),

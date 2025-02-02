@@ -1,7 +1,7 @@
 /* This module is a copy of "snake_gmae_fsm", we used it for testbanch*/
 
 
-module snake_game_fsm_for_test( collision_detected, collision_fruit, fruit_eaten, right, left, up, down, right_sync, left_sync, right_register, left_register, current_state, next_state, clock_25, frame_tik, game_tik, start, game_over, reset, 
+module snake_game_fsm_for_test( collision_detected, collision_fruit, fruit_eaten, right, left, up, down, up_tail, down_tail, left_tail, right_tail, right_sync, left_sync, right_register, left_register, current_state, next_state, clock_25, frame_tik, game_tik, start, game_over, reset, 
 sync_reset, right_P, left_P, score, snake_head_x, snake_head_y, snake_body_x, body_count, snake_body_y, fruit_x, fruit_y, snake_length); 
 
 parameter SNAKE_LENGTH_BIT = 7;
@@ -38,6 +38,7 @@ parameter BEGIN_FRUIT_Y = 7'd40;
     output start, game_over;                                        // this bit comunicate if the game is going or there is a gameover
     output sync_reset;                                              //syncronus reset
     output left, right, up, down;                                    // direzioni effettive dello snake
+    output up_tail, down_tail, left_tail, right_tail;
     output [6:0] snake_head_x, snake_head_y;                         // Posizione della testa del serpente (range 0-123 per x, 0-80 per y)
     output [6:0] snake_body_x;                                      // Posizioni del corpo del serpente (massimo 16 segmenti)
     output [6:0] snake_body_y;                                       // Posizioni del corpo del serpente (massimo 16 segmenti)
@@ -61,6 +62,10 @@ reg [6:0] snake_body_y_reg [0:SNAKE_LENGTH_MAX-2];
 reg [SNAKE_LENGTH_BIT-1:0] snake_length;               
 reg [6:0] fruit_x, fruit_y;
 reg up, down, left, right;
+reg up_tail, down_tail, left_tail, right_tail;
+reg [SNAKE_LENGTH_MAX-2:0] collision_vector;
+reg [SNAKE_LENGTH_MAX-2:0] fruit_vector;
+reg [SNAKE_LENGTH_BIT-1:0] tail_count;
 
 output reg right_sync, left_sync;
 output reg right_register, left_register;
@@ -78,7 +83,7 @@ reg en_move, en_fruit, generate_fruit, start, game_over, sync_reset, send;
 
 
 // Indice per ciclo for
-integer i; 
+integer i, j;
 
 
 // Moore state machine register

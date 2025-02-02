@@ -13,13 +13,14 @@ wire [6:0] snake_head_x_tb, snake_head_y_tb, snake_body_x_tb, snake_body_y_tb, f
 wire [3:0] snake_length_tb;
 wire[7:0] score_tb;
 wire VGA_HS_tb, VGA_VS_tb;
-wire frame_tik_tb;
 wire game_tik_tb;
 wire collision_detected_tb;
 wire right_tb, left_tb, up_tb, down_tb, right_sync_tb, left_sync_tb, right_register_tb, left_register_tb;
+wire right_tail_tb, left_tail_tb, down_tail_tb, up_tail_tb;
 wire display_area_tb;
 wire [PIXEL_DISPLAY_BIT:0] X_tb,Y_tb; 
 wire [2:0] next_state_tb, current_state_tb;
+wire [49:0] selected_symbol_tb;
 
 wire game_enable_tb, game_area_tb, semaforo_tb;
 wire [1:0] color_data_tb, selected_figure_tb;
@@ -46,7 +47,6 @@ wrapper_general_for_test my_wrapper_general_for_test(
     .snake_length(snake_length_tb),
     .VGA_HS(VGA_HS_tb), 
     .VGA_VS(VGA_VS_tb),
-    .frame_tik(frame_tik_tb),
     .game_tik(game_tik_tb),
     .display_area(display_area_tb),
     .collision_detected(collision_detected_tb),
@@ -57,6 +57,10 @@ wrapper_general_for_test my_wrapper_general_for_test(
 	 .left(left_tb),
 	 .up(up_tb),
     .down(down_tb),
+    .up_tail(up_tail_tb),
+     .down_tail(down_tail_tb), 
+     .left_tail(left_tail_tb), 
+     .right_tail(right_tail_tb),
     .right_sync(right_sync_tb), 
     .left_sync(left_sync_tb),
     .right_register(right_register_tb), 
@@ -64,7 +68,7 @@ wrapper_general_for_test my_wrapper_general_for_test(
 	 .selected_figure(selected_figure_tb),
     .game_enable(game_enable_tb), 
     .game_area(game_area_tb),
-    .semaforo(semaforo_tb),
+    .selected_symbol(selected_symbol_tb),
     .color_data(color_data_tb)    
 );
 

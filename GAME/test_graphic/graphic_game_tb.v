@@ -17,7 +17,10 @@ wire [1:0] color_data_tb, selected_figure_tb;
 wire [6:0] x_block_tb, y_block_tb;
 wire [2:0] x_local_tb, y_local_tb;
 
-
+reg up, down, left, right;                                
+reg left_tail, right_tail, up_tail, down_tail;
+wire [1:0]game_enable_vect;
+wire body_found; 
 
 wrapper_graphic my_wrapper_graphic(
 .x_block(x_block_tb),
@@ -40,7 +43,17 @@ wrapper_graphic my_wrapper_graphic(
 .color_data (color_data_tb),
 .game_area(game_area_tb),
 .semaforo(semaforo_tb),
-.selected_figure (selected_figure_tb)
+.selected_figure (selected_figure_tb),
+.game_enable_vect(game_enable_vect_tb),
+.body_found(body_found_tb),
+.up(up_tb),
+.down(down_tb), 
+.left(left_tb),
+.right(right_tb),
+.left_tail(left_tail_tb),
+.right_tail(right_tail_tb),
+.up_tail(up_tail_tb),
+.down_tail(down_tail_tb)
 );
 
 //clock generation
