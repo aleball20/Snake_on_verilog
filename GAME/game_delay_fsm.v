@@ -20,27 +20,27 @@ wire sync_SW17, sync_SW16, sync_SW15;
 
 //syncornization of the switches avoiding bouncing
 
-buttom_control_fsm my_buttom_control_fsm_1(
+button_control_fsm my_button_control_fsm_1(
     .reset(reset), 
     .clock_25(clock_25),
-    .async_buttom(SW17), 
-    .sync_buttom(sync_SW17),
+    .async_button(SW17), 
+    .sync_button(sync_SW17),
     .en_rise(1'b0) //keeps value
    );
 
-   buttom_control_fsm my_buttom_control_fsm_2(
+   button_control_fsm my_button_control_fsm_2(
     .reset(reset), 
     .clock_25(clock_25),
-    .async_buttom(SW16), 
-    .sync_buttom(sync_SW16),
+    .async_button(SW16), 
+    .sync_button(sync_SW16),
     .en_rise(1'b0)
    );
 
-   buttom_control_fsm my_buttom_control_fsm_3(
+   button_control_fsm my_button_control_fsm_3(
     .reset(reset), 
     .clock_25(clock_25),
-    .async_buttom(SW15), 
-    .sync_buttom(sync_SW15),
+    .async_button(SW15), 
+    .sync_button(sync_SW15),
     .en_rise(1'b0)
    );
 

@@ -1,22 +1,22 @@
-/*This buttom takes input buttoms and delates the bouncing, and it gets sensible only to the rise of the signal if en_rise is set to 1 */
+/*This button takes input buttons and delates the bouncing, and it gets sensible only to the rise of the signal if en_rise is set to 1 */
 
-module buttom_control_fsm(reset, clock_25, async_buttom, sync_buttom, en_rise);
+module button_control_fsm(reset, clock_25, async_button, sync_button, en_rise);
 
 //fsm states
 parameter IDLE = 2'b00;
-parameter PRESS_BUTTOM = 2'b01;
+parameter PRESS_BUTTON= 2'b01;
 parameter SEND = 2'b10;
 parameter WAIT = 2'b11;
 
 input reset;
 input en_rise;
 input clock_25;
-input async_buttom;
-output sync_buttom;
+input async_button;
+output sync_button;
 
 reg [1:0] current_state, next_state;
 reg [20:0] counter;
-reg sync_buttom;
+reg sync_button;
 
 
 //register for Moore's machine
@@ -34,30 +34,30 @@ always @(*) begin       //combinatory network for deciding the next states
     case (current_state)
         
         IDLE:  begin
-            if (async_buttom==1'b1)
-                next_state = PRESS_BUTTOM;
+            if (async_button==1'b1)
+                next_state = PRESS_BUTTON;
             else
                 next_state = IDLE;
         end
 
-        PRESS_BUTTOM: begin
+        PRESS_BUTTON: begin
             if(counter[20]==1'b1)
                 next_state = SEND;
-            else if (async_buttom== 1'b1)
-                next_state = PRESS_BUTTOM;
+            else if (async_button== 1'b1)
+                next_state = PRESS_BUTTON;
             else
                 next_state = IDLE;
         end 
 
         SEND: begin
-            if (en_rise==1'b0 && async_buttom == 1'b1)
+            if (en_rise==1'b0 && async_button == 1'b1)
                 next_state = SEND;
             else
                 next_state = WAIT;
         end
 
         WAIT: begin
-            if (async_buttom==1'b1)
+            if (async_button==1'b1)
                 next_state = WAIT;
             else
                 next_state = IDLE;
@@ -69,16 +69,16 @@ end
 
 always @ (current_state) begin
     if(current_state== SEND)
-        sync_buttom = 1'b1;
+        sync_button = 1'b1;
     else 
-        sync_buttom = 1'b0;
+        sync_button = 1'b0;
 end
 
 always @ (posedge clock_25 or negedge reset) begin
 
     if(~reset)
         counter <= 0;
-    else if(current_state == PRESS_BUTTOM)
+    else if(current_state == PRESS_BUTTON)
         counter <= counter +1'b1;
     else 
         counter <= 0;

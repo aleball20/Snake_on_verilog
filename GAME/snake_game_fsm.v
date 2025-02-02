@@ -498,20 +498,20 @@ always @(current_state)
 // Synchronizes asynchronous button presses on the input positive edge, avoiding bounces, generating a high-active synchronous pulse for one clock cycle
 
 // right_P
-   buttom_control_fsm my_button_control_fsm_1(
+   button_control_fsm my_button_control_fsm_1(
     .reset(reset), 
     .clock_25(clock_25),
-    .async_buttom(right_P), 
-    .sync_buttom(right_sync),
+    .async_button(right_P), 
+    .sync_button(right_sync),
     .en_rise(1'b1)
    );
     
     // left_P
-   buttom_control_fsm my_button_control_fsm_2(
+   button_control_fsm my_button_control_fsm_2(
     .reset(reset), 
     .clock_25(clock_25),
-    .async_buttom(left_P), 
-    .sync_buttom(left_sync),
+    .async_button(left_P), 
+    .sync_button(left_sync),
     .en_rise(1'b1)
    );
     // assign right_register and left_register that will take the value of right_sync and left_sync inputs 
