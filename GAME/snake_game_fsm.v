@@ -274,7 +274,7 @@ always @(current_state)
     endcase
 
 
-//body_count is reset only in RESET_IDLE state or after every snake's move. After a collision or when the counter is equal to the snake lenght max boy stops to count  
+//body_count is reset only in RESET_IDLE state or after every snake's move. After a collision or when the counter is equal to the snake lenght max body_count stops to count  
     always @ (posedge clock_25 or negedge reset) begin
         if (~reset)
             body_count <= 0;
