@@ -16,7 +16,6 @@ wire [SNAKE_LENGTH_BIT-1:0] snake_length_tb;
 wire[6:0] score_tb;
 wire VGA_HS_tb, VGA_VS_tb;
 wire sync_reset_tb;
-wire frame_tik_tb;
 wire game_tik_tb;
 wire collision_detected_tb;
 wire right_tb, left_tb, up_tb, down_tb, right_sync_tb, left_sync_tb, right_register_tb, left_register_tb;
@@ -36,7 +35,6 @@ wrapper_snake_game my_wrapper_snake_game(
 .clock_25(clock_25_tb),
 .reset(reset_tb),
 .game_tik(game_tik_tb),
-.frame_tik(frame_tik_tb),
 .right_P(right_P_tb),
 .left_P(left_P_tb),
 .snake_head_x(snake_head_x_tb), 
@@ -99,13 +97,16 @@ initial begin
      right_P_tb =1;
 	  #50
 	  right_P_tb =0;
-	  #1000000;
+	  #100000000;
 	  left_P_tb =1;
 	  #50
 	  left_P_tb =0;
-	   #1000000000;
-    right_P_tb=1;
-        #1000000;
+	  #100000000;
+    left_P_tb=1;
+	 #50
+	  left_P_tb =0;
+     #1000000000;
+	right_P_tb= 1;
 
 end
 
