@@ -263,7 +263,7 @@ always @(posedge clock_25 or negedge reset) begin
 		  
     end
 	 
-	 always @ (posedge clock_25 or negedge reset) begin  // game_enable has to be delayed by two clock cycles in order to be sycnronized with the pi 
+	always @ (posedge clock_25 or negedge reset) begin  // game_enable has to be delayed by two clock cycles in order to be sycnronized with the color_data 
 		if (~reset)
 				game_enable_vect <= 2'b00;
 		else 
