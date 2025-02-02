@@ -33,15 +33,15 @@ always @(*) begin       //combinatory network for deciding the next states
 
     case (current_state)
         
-        IDLE:  begin
+        IDLE:  begin                    //waiting for a pressed button
             if (async_button==1'b1)
                 next_state = PRESS_BUTTON;
             else
                 next_state = IDLE;
         end
 
-        PRESS_BUTTON: begin
-            if(counter[20]==1'b1)
+        PRESS_BUTTON: begin            //button has be pressed but there coud be an bouncing, then output in this state continues to be 0
+            if(counter[20]==1'b1)        //ater 83ms where button continue to be enabled, the output can be sent
                 next_state = SEND;
             else if (async_button== 1'b1)
                 next_state = PRESS_BUTTON;
@@ -49,14 +49,14 @@ always @(*) begin       //combinatory network for deciding the next states
                 next_state = IDLE;
         end 
 
-        SEND: begin
+        SEND: begin                    //output is sent, if en_rise == 1'b1 output is enabled just for one cycle
             if (en_rise==1'b0 && async_button == 1'b1)
                 next_state = SEND;
             else
                 next_state = WAIT;
         end
 
-        WAIT: begin
+        WAIT: begin                    //waitng that that async_button stops to be pushed
             if (async_button==1'b1)
                 next_state = WAIT;
             else
