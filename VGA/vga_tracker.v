@@ -8,7 +8,7 @@ parameter PIXEL_DISPLAY_BIT   = 9;
 //orizontal (this are clock cycles)
 parameter H_DISPLAY           = 640; //orizontal visualized pixels (active video)
 parameter H_FRONT_PORCH       = 16; //orizontal front porch
-parameter H_SYNC_PULSE        =96; //orizontal sync pulse
+parameter H_SYNC_PULSE        =	96; //orizontal sync pulse
 parameter H_BACK_PORCH        = 48; //orizontal back porch
 
 parameter H_TOTAL = H_DISPLAY + H_FRONT_PORCH + H_SYNC_PULSE + H_BACK_PORCH; //total orizontal pixels 300
@@ -16,7 +16,7 @@ parameter H_TOTAL = H_DISPLAY + H_FRONT_PORCH + H_SYNC_PULSE + H_BACK_PORCH; //t
 //vertical (this are lines cycles)
 parameter V_DISPLAY           = 480; //vertical visualized pixels (active video)
 parameter V_FRONT_PORCH       = 10; //vertical front porch
-parameter V_SYNC_PULSE        =2; //vertical sync pulse
+parameter V_SYNC_PULSE        =	2; //vertical sync pulse
 parameter V_BACK_PORCH        = 33; //vertical back porch
 
 parameter V_TOTAL = V_DISPLAY + V_FRONT_PORCH + V_SYNC_PULSE + V_BACK_PORCH; //total vertical pixels 535 lines

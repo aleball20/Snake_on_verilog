@@ -462,7 +462,7 @@ always @(current_state)
     always @ (*) begin
         if((fruit_x == snake_head_x && fruit_y == snake_head_y) || fruit_vector > 0 || 
            (fruit_x >= HORIZONTAL_CELLS_NUM - 1'b1) || (fruit_y >= VERTICAL_CELLS_NUM - 1'b1) || 
-           (fruit_x == 0) || (fruit_y == 0))
+           (fruit_x== 0) || (fruit_y ==0))
             collision_fruit = 1'b1;
         else
             collision_fruit = 1'b0;    
